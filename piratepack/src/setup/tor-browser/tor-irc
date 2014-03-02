@@ -1,0 +1,33 @@
+#!/bin/bash
+
+cd
+homedir="$(pwd)"
+
+pid="$(cat ".vidalia_1/vidalia.pid" 2>> /dev/null)"
+psline="$(ps -p "$pid" 2>> /dev/null | grep "$pid")"
+if [[ x"$psline" == x"" ]]
+then
+    "$maindir"/bin/tor-instance &
+fi
+
+localdir="$homedir"/.piratepack/tor-browser
+
+cd "$localdir"
+username1=""
+while [ x"$username1" == x"" ]
+do
+    username1="$(dd if=/dev/random bs=1 count=10 2>/dev/null | tr -dc '[:lower:]' | head -c 1)"
+done
+username2="$(dd if=/dev/random bs=1 count=50 2>/dev/null | tr -dc '[:alnum:]' | tr -d '[:upper:]' | head -c 7)"
+username="$username1""$username2"
+tar -xzf "$maindir"/share/tor-browser/purple.tar.gz
+cd .purple
+awk '{sub(/anon/,"'"$username"'"); print}' accounts.xml > accounts.xml_tmp
+mv accounts.xml_tmp accounts.xml
+awk '{sub(/anon/,"'"$username"'"); print}' blist.xml > blist.xml_tmp
+mv blist.xml_tmp blist.xml
+awk '{sub(/[$]autoacceptpath/,"'"$localdir/.purple/autoaccept"'"); print}' prefs.xml > prefs.xml_tmp
+mv prefs.xml_tmp prefs.xml
+cd ..
+pidgin --config="$localdir"/.purple
+rm -rf .purple

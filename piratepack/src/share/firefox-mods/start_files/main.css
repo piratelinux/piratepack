@@ -1,0 +1,36 @@
+body
+{
+background-color:Grey;
+height:1000px;
+background-image:url('computer-circuit.jpg');
+background-position:center;
+background-attachment:fixed;
+}
+
+a:link {color:#FFFFFF;text-decoration:none;}
+a:visited {color:#FFFFFF;text-decoration:none;}
+a:hover{color:Grey;background:#FFFFFF;text-decoration:none;}
+a:active{color:#FFFF00;text-decoration:none;}
+
+div.centered
+{
+text-align:center;
+}
+
+div.main a:link {color:#0000FF;}
+div.main a:visited {color:#0000FF;}
+div.main a:hover{color:#0000FF;}
+div.main a:active{color:#0000FF;}
+
+div.main
+{
+position:relative;
+top:5px;
+background-color:LightGrey;
+padding:10px;
+width:50%;
+left:25%;
+right:25%;
+height:100%;
+opacity:0.75;
+}
