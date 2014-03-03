@@ -20,7 +20,7 @@ then
     if [ ! -d icons ]
     then mkdir icons
     fi
-    cp "$maindir/share/cwallet_build/icon.png" icons
+    cp "$maindir/share/cwallet_build/icon.png" icons/cwallet.png
     if [ ! -d applications ]
     then mkdir applications
     fi
