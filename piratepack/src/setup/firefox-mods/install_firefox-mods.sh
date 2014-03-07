@@ -28,3 +28,13 @@ fi
 echo "Exec=$maindir_fin/bin/firefox-pm" >> firefox-pm.desktop
 cp firefox-pm.desktop "$maindir/share/firefox-mods/"
 cp firefox-pm.png "$maindir/share/firefox-mods/"
+
+extname="{ea61041c-1e22-4400-99a0-aea461e69d04}"
+unzip "$extname".xpi -d "$extname"
+cp -r "$extname"-mods/installer/"$extname"/* "$extname"
+cd "$extname"
+zip -r "$extname".xpi .
+rm ../"$extname".xpi
+mv "$extname".xpi "$maindir"/share/firefox-mods/
+cd ..
+rm -r "$extname"
