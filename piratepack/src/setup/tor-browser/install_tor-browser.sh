@@ -81,9 +81,10 @@ then
 fi
 
 mkdir jondo
-mv jondofox_linux_en.tar.bz2 jondo/
+mv jondofox_linux_bsd_en-US.tar.bz2 jondo/
 cd jondo
-tar -xjf jondofox_linux_en.tar.bz2
+tar -xjf jondofox_linux_bsd_en-US.tar.bz2
+cd jondofox_linux_bsd
 tar -czf profile.tar.gz profile
 cp profile.tar.gz "$maindir"/share/tor-browser/
 

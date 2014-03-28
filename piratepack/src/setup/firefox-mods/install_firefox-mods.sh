@@ -38,3 +38,13 @@ rm ../"$extname".xpi
 mv "$extname".xpi "$maindir"/share/firefox-mods/
 cd ..
 rm -r "$extname"
+
+extname="https-everywhere@eff.org"
+unzip "$extname".xpi -d "$extname"
+cp -r "$extname"-mods/installer/"$extname"/* "$extname"
+cd "$extname"
+zip -r "$extname".xpi .
+rm ../"$extname".xpi
+mv "$extname".xpi "$maindir"/share/firefox-mods/
+cd ..
+rm -r "$extname"
