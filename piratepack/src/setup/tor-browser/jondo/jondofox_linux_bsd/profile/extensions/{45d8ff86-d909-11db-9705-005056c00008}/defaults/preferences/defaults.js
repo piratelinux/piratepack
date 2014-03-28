@@ -1,9 +1,0 @@
-pref("extensions.cookiemonster.secondlevelurl", true);
-pref("extensions.cookiemonster.reloadonpermissionchange", true);
-pref("extensions.cookiemonster.enablecontextmenu", false);
-pref("extensions.cookiemonster.enableglobalcookieoverride", false);
-pref("extensions.cookiemonster.deletecookiesondeny", false);
-pref("extensions.cookiemonster.tempcookie", "");
-pref("extensions.cookiemonster.overrideglobal", "");
-pref("extensions.cookiemonster.disabledeletecookieconfirm", false);
-pref("extensions.cookiemonster.originaldefaulticon", false);
