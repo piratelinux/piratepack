@@ -127,8 +127,8 @@ then
 	    then
 		if [ ! -f "${line:0:$linelensub}".json ]
 		then
-		    cp "$line" "$extdir"/
-		    echo "$extdir"/"$line" >> "$localdir"/.installed
+		    cp "$line" "$extdir"/staged/
+		    echo "$extdir"/staged/"$line" >> "$localdir"/.installed
 		    continue
 		fi
 		if [ -d "${line:0:$linelensub}" ]
