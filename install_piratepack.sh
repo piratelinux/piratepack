@@ -33,11 +33,6 @@ fi
 
 if [[ "$continue" == "1" ]]
 then
-    if [ -e piratepack ]
-    then
-	rm -rf piratepack
-    fi
-    tar -xzf piratepack.tar.gz
     cd piratepack
 fi
 
@@ -116,8 +111,6 @@ then
     cp -r src/share "$maindir/"
 
     set +e
-    ./configure
-    make
     chmod a+rx src/piratepack
     set -e
     cp src/piratepack "$maindir/bin"
@@ -162,7 +155,7 @@ then
     done < <(find * -maxdepth 0 -type d)
 
     cd "$curdir"
-    cp piratepack.tar.gz "$maindir/src"
+    #cp piratepack.tar.gz "$maindir/src"
     cp install_piratepack.sh "$maindir/src"
     cp remove_piratepack.sh "$maindir/src"
 
@@ -190,8 +183,8 @@ then
 	cd "$curdir"/piratepack/src/setup/bin-pack/piratepack/piratepack/main
 	echo "Version: $versionfull" > README
 	cd ../..
-	tar -czf piratepack.tar.gz piratepack
-	rm -rf piratepack
+	#tar -czf piratepack.tar.gz piratepack
+	#rm -rf piratepack
 	cd ..
 	mv -f piratepack piratepack-"$version"bin
 	i=0
