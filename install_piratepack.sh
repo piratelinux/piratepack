@@ -229,13 +229,13 @@ then
 
 fi
 
-if [[ "$continue" == "1" ]]
-then
-    if [ -e piratepack ]
-    then
-	rm -rf piratepack
-    fi
-fi
+#if [[ "$continue" == "1" ]]
+#then
+#    if [ -e piratepack ]
+ #   then
+#	rm -rf piratepack
+ #   fi
+#fi
 
 #cleanup other versions
 
