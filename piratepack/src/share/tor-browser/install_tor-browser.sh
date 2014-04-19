@@ -227,11 +227,17 @@ if [ ! -d icons ]
  then mkdir icons
 fi
 cp "$curdir/tor-browser.png" icons
+echo "$homedir"/.local/share/icons/tor-browser.png >> "$localdir"/.installed
 cp "$curdir/tor-instance.png" icons
+echo "$homedir"/.local/share/icons/tor-instance.png >> "$localdir"/.installed
 cp "$curdir/tor-irc.png" icons
+echo "$homedir"/.local/share/icons/tor-irc.png >> "$localdir"/.installed
 if [ ! -d applications ]
  then mkdir applications
 fi
 cp "$curdir/tor-browser.desktop" applications
+echo "$homedir"/.local/share/applications/tor-browser.desktop >> "$localdir"/.installed
 cp "$curdir/tor-instance.desktop" applications
+echo "$homedir"/.local/share/applications/tor-instance.desktop >> "$localdir"/.installed
 cp "$curdir/tor-irc.desktop" applications
+echo "$homedir"/.local/share/applications/tor-irc.desktop >> "$localdir"/.installed

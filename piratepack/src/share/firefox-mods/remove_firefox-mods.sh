@@ -42,8 +42,10 @@ if [[ "$profiledir" != "" ]] && [ -f "$profiledir"/prefs.js ]
 then
 
     cd "$profiledir"
-    
+
+    set +e
     match="$(grep homepage.*piratepack.*start.html prefs.js)"
+    set -e
     if [[ "$match" != "" ]]
     then
 	echo 'user_pref("browser.startup.homepage", "about:blank");' >> prefs.js

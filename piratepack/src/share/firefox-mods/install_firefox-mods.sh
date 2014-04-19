@@ -220,7 +220,9 @@ if [ ! -d icons ]
  then mkdir icons
 fi
 cp "$curdir/firefox-pm.png" icons
+echo "$homedir"/.local/share/icons/firefox-pm.png >> "$localdir"/.installed
 if [ ! -d applications ]
  then mkdir applications
 fi
 cp "$curdir/firefox-pm.desktop" applications
+echo "$homedir"/.local/share/applications/firefox-pm.desktop >> "$localdir"/.installed
