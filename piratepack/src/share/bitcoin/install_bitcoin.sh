@@ -21,10 +21,12 @@ then
     then mkdir icons
     fi
     cp "$maindir/share/cwallet_build/icon.png" icons/cwallet.png
+    echo "$homedir"/.local/share/icons/cwallet.png >> "$localdir"/.installed
     if [ ! -d applications ]
     then mkdir applications
     fi
     cp "$curdir"/cwallet.desktop "$localdir"
     echo "Exec=$maindir/bin/cwallet-gui --addpath $maindir/bin" >> "$localdir"/cwallet.desktop
     mv "$localdir/cwallet.desktop" applications
+    echo "$homedir"/.local/share/applications/cwallet.desktop >> "$localdir"/.installed
 fi
