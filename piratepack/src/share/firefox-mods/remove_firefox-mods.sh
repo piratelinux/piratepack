@@ -43,7 +43,7 @@ then
 
     cd "$profiledir"
     
-    match="$(grep homepage.*piratelinux.org prefs.js)"
+    match="$(grep homepage.*piratepack.*start.html prefs.js)"
     if [[ "$match" != "" ]]
     then
 	echo 'user_pref("browser.startup.homepage", "about:blank");' >> prefs.js
