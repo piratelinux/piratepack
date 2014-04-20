@@ -707,7 +707,7 @@ install_pack(int argc, char **argv, Data * data)
 
   ret = chdir(str);
 
-  strcpy (str,"./install_firefox-mods.sh || echo \"ERROR: firefox-mods failed to install\" >&2 ");
+  strcpy (str,"(./install_firefox-mods.sh || echo \"ERROR: firefox-mods failed to install\" >&2) ");
   strcat (str,logpipe);
   ret = system(str);
 
@@ -745,7 +745,7 @@ install_pack(int argc, char **argv, Data * data)
 
   ret = chdir(str);
   
-  strcpy (str,"./install_tor-browser.sh || echo \"ERROR: tor-browser failed to install\" >&2 ");
+  strcpy (str,"(./install_tor-browser.sh || echo \"ERROR: tor-browser failed to install\" >&2) ");
   strcat (str,logpipe);
   ret = system(str);
 
@@ -776,7 +776,7 @@ install_pack(int argc, char **argv, Data * data)
 
   ret = chdir(str);
 
-  strcpy (str,"./install_i2p-browser.sh || echo \"ERROR: i2p-browser failed to install\" >&2 ");
+  strcpy (str,"(./install_i2p-browser.sh || echo \"ERROR: i2p-browser failed to install\" >&2) ");
   strcat (str,logpipe);
   ret = system(str);
 
@@ -810,7 +810,7 @@ install_pack(int argc, char **argv, Data * data)
 
   ret = chdir(str);
 
-  strcpy (str,"./install_file-manager.sh || echo \"ERROR: file-manager failed to install\" >&2 ");
+  strcpy (str,"(./install_file-manager.sh || echo \"ERROR: file-manager failed to install\" >&2) ");
   strcat (str,logpipe);
   ret = system(str);
 
@@ -844,7 +844,7 @@ install_pack(int argc, char **argv, Data * data)
 
   ret = chdir(str);
 
-  strcpy (str,"./install_ppcavpn.sh || echo \"ERROR: ppcavpn failed to install\" >&2 ");
+  strcpy (str,"(./install_ppcavpn.sh || echo \"ERROR: ppcavpn failed to install\" >&2) ");
   strcat (str,logpipe);
   ret = system(str);
 
@@ -878,7 +878,7 @@ install_pack(int argc, char **argv, Data * data)
 
   ret = chdir(str);
 
-  strcpy (str,"./install_bitcoin.sh || echo \"ERROR: bitcoin failed to install\" >&2 ");
+  strcpy (str,"(./install_bitcoin.sh || echo \"ERROR: bitcoin failed to install\" >&2) ");
   strcat (str,logpipe);
   ret = system(str);
 
@@ -1203,7 +1203,7 @@ reinstall_pack(int argc, char **argv, Data * data)
 
   ret = chdir(str);
 
-  strcpy (str,"./install_firefox-mods.sh || echo \"ERROR: firefox-mods failed to install\" >&2 ");
+  strcpy (str,"(./install_firefox-mods.sh || echo \"ERROR: firefox-mods failed to install\" >&2) ");
   strcat (str,logpipe);
   ret = system(str);
 
@@ -1241,7 +1241,7 @@ reinstall_pack(int argc, char **argv, Data * data)
 
   ret = chdir(str);
   
-  strcpy (str,"./install_tor-browser.sh || echo \"ERROR: tor-browser failed to install\" >&2 ");
+  strcpy (str,"(./install_tor-browser.sh || echo \"ERROR: tor-browser failed to install\" >&2) ");
   strcat (str,logpipe);
   ret = system(str);
 
@@ -1272,7 +1272,7 @@ reinstall_pack(int argc, char **argv, Data * data)
 
   ret = chdir(str);
 
-  strcpy (str,"./install_i2p-browser.sh || echo \"ERROR: i2p-browser failed to install\" >&2 ");
+  strcpy (str,"(./install_i2p-browser.sh || echo \"ERROR: i2p-browser failed to install\" >&2) ");
   strcat (str,logpipe);
   ret = system(str);
 
@@ -1306,7 +1306,7 @@ reinstall_pack(int argc, char **argv, Data * data)
 
   ret = chdir(str);
 
-  strcpy (str,"./install_file-manager.sh || echo \"ERROR: file-manager failed to install\" >&2 ");
+  strcpy (str,"(./install_file-manager.sh || echo \"ERROR: file-manager failed to install\" >&2) ");
   strcat (str,logpipe);
   ret = system(str);
 
@@ -1340,7 +1340,7 @@ reinstall_pack(int argc, char **argv, Data * data)
 
   ret = chdir(str);
 
-  strcpy (str,"./install_ppcavpn.sh || echo \"ERROR: ppcavpn failed to install\" >&2 ");
+  strcpy (str,"(./install_ppcavpn.sh || echo \"ERROR: ppcavpn failed to install\" >&2) ");
   strcat (str,logpipe);
   ret = system(str);
 
@@ -1374,7 +1374,7 @@ reinstall_pack(int argc, char **argv, Data * data)
 
   ret = chdir(str);
 
-  strcpy (str,"./install_bitcoin.sh || echo \"ERROR: bitcoin failed to install\" >&2 ");
+  strcpy (str,"(./install_bitcoin.sh || echo \"ERROR: bitcoin failed to install\" >&2) ");
   strcat (str,logpipe);
   ret = system(str);
 
