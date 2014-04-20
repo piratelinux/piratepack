@@ -65,20 +65,20 @@ chmod a+x "$maindir"/share/tor-browser_build/tor-instance
 cp tor-irc  "$maindir"/share/tor-browser_build/
 chmod a+x "$maindir"/share/tor-browser_build/tor-irc
 
-if [ -d "$maindir"/bin ] && [ ! -e "$maindir"/bin/tor-browser ]
-then
-    ln -s "$maindir"/share/tor-browser_build/tor-browser "$maindir"/bin/tor-browser
-fi
+#if [ -d "$maindir"/bin ] && [ ! -e "$maindir"/bin/tor-browser ]
+#then
+#    ln -s "$maindir"/share/tor-browser_build/tor-browser "$maindir"/bin/tor-browser
+#fi
 
-if [ -d "$maindir"/bin ] && [ ! -e "$maindir"/bin/tor-instance ]
-then
-    ln -s "$maindir"/share/tor-browser_build/tor-instance "$maindir"/bin/tor-instance
-fi
+#if [ -d "$maindir"/bin ] && [ ! -e "$maindir"/bin/tor-instance ]
+#then
+#    ln -s "$maindir"/share/tor-browser_build/tor-instance "$maindir"/bin/tor-instance
+#fi
 
-if [ -d "$maindir"/bin ] && [ ! -e "$maindir"/bin/tor-irc ]
-then
-    ln -s "$maindir"/share/tor-browser_build/tor-irc "$maindir"/bin/tor-irc
-fi
+#if [ -d "$maindir"/bin ] && [ ! -e "$maindir"/bin/tor-irc ]
+#then
+#    ln -s "$maindir"/share/tor-browser_build/tor-irc "$maindir"/bin/tor-irc
+#fi
 
 mkdir jondo
 mv jondofox_linux_bsd_en-US.tar.bz2 jondo/
