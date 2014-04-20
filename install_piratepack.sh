@@ -93,6 +93,8 @@ then
 	mkdir "$maindir"
     fi
     
+    echo -n "$maindir_fin" > "$curdir"/maindir_fin
+
     continue="1"
 
 fi
@@ -135,37 +137,12 @@ then
 
     cd ..
 
-    cd "$basedir_fin"/packages
-
-    while read -r line
-    do
-	echo "adding $line"
-	cd "$line"/bin
-	while read -r line2
-	do
-	    ln -s "$basedir"/packages/"$line"/bin/"$line2" "$maindir"/bin/"$line2"
-	done < <(find * -maxdepth 0)
-	cd ../
-	cd share
-	while read -r line2
-        do
-            ln -s "$basedir"/packages/"$line"/share/"$line2" "$maindir"/share/"$line2"
-	done < <(find * -maxdepth 0)
-	cd ../../
-    done < <(find * -maxdepth 0 -type d)
-
     cd "$curdir"
     #cp piratepack.tar.gz "$maindir/src"
     cp install_piratepack.sh "$maindir/src"
     cp remove_piratepack.sh "$maindir/src"
 
     mkdir -p "$basedir"/bin
-    ln -sf "$maindir"/bin/piratepack "$basedir"/bin/piratepack-tmp
-    mv -Tf "$basedir/bin/piratepack-tmp" "$basedir/bin/piratepack"
-    ln -sf "$maindir"/bin/piratepack-refresh "$basedir"/bin/piratepack-refresh-tmp
-    mv -Tf "$basedir/bin/piratepack-refresh-tmp" "$basedir/bin/piratepack-refresh"
-    ln -sf "$maindir/bin-pack" "$basedir/bin-pack_tmp"
-    mv -Tf "$basedir/bin-pack_tmp" "$basedir/bin-pack"
 
 fi
 
