@@ -648,11 +648,11 @@ install_pack(int argc, char **argv, Data * data)
 
   strcpy (logpipe,">> /dev/null 2>> ");
   strcat (logpipe,homedir);
-  strcat (logpipe,"/.piratepack/logs/piratepack_install.log");
+  strcat (logpipe,"/.piratepack/logs/install_last.log");
 
   strcpy(str,"echo \"[$(date)]\" >> ");
   strcat(str,homedir);
-  strcat(str,"/.piratepack/logs/piratepack_install.log");
+  strcat(str,"/.piratepack/logs/install_last.log");
   ret = system(str);
 
   strcpy (str,"chmod u+rwx .piratepack ");
@@ -678,7 +678,7 @@ install_pack(int argc, char **argv, Data * data)
   gchar * processpathsub = substring(processpath,strlen(basedir)+1,strlen(processpath)-strlen(basedir)-1);
   strcpy (str,"echo Path: ");
   strcat (str,processpathsub);
-  strcat (str," >> .installed 2>> logs/piratepack_install.log");
+  strcat (str," >> .installed 2>> logs/install_last.log");
   ret = system(str); 
   g_free(processpathsub);
 
@@ -718,7 +718,7 @@ install_pack(int argc, char **argv, Data * data)
   ret = chdir(homedir);
   ret = chdir(".piratepack");
 
-  ret = system("echo firefox-mods >> .installed 2>> logs/piratepack_install.log");
+  ret = system("echo firefox-mods >> .installed 2>> logs/install_last.log");
 
   //install tor-browser
 
@@ -752,7 +752,7 @@ install_pack(int argc, char **argv, Data * data)
   ret = chdir(homedir);
   ret = chdir(".piratepack");
 
-  ret = system("echo tor-browser >> .installed 2>> logs/piratepack_install.log");
+  ret = system("echo tor-browser >> .installed 2>> logs/install_last.log");
 
   //install i2p-browser
 
@@ -783,7 +783,7 @@ install_pack(int argc, char **argv, Data * data)
   ret = chdir(homedir);
   ret = chdir(".piratepack");
 
-  ret = system("echo i2p-browser >> .installed 2>> logs/piratepack_install.log");
+  ret = system("echo i2p-browser >> .installed 2>> logs/install_last.log");
 
   //install file-manager
 
@@ -817,7 +817,7 @@ install_pack(int argc, char **argv, Data * data)
   ret = chdir(homedir);
   ret = chdir(".piratepack");
 
-  ret = system("echo file-manager >> .installed 2>> logs/piratepack_install.log");
+  ret = system("echo file-manager >> .installed 2>> logs/install_last.log");
 
   //install ppcavpn
 
@@ -851,7 +851,7 @@ install_pack(int argc, char **argv, Data * data)
   ret = chdir(homedir);
   ret = chdir(".piratepack");
 
-  ret = system("echo ppcavpn >> .installed 2>> logs/piratepack_install.log");
+  ret = system("echo ppcavpn >> .installed 2>> logs/install_last.log");
 
   //install bitcoin
 
@@ -885,7 +885,7 @@ install_pack(int argc, char **argv, Data * data)
   ret = chdir(homedir);
   ret = chdir(".piratepack");
 
-  ret = system("echo bitcoin >> .installed 2>> logs/piratepack_install.log");
+  ret = system("echo bitcoin >> .installed 2>> logs/install_last.log");
 
   //install theme
 
@@ -912,7 +912,7 @@ install_pack(int argc, char **argv, Data * data)
   ret = chdir(homedir);
   ret = chdir(".piratepack");
 
-  ret = system("echo theme >> .installed 2>> logs/piratepack_install.log");
+  ret = system("echo theme >> .installed 2>> logs/install_last.log");
 
   strcpy(str,maindir);
   strcat(str,"/share");
@@ -962,10 +962,27 @@ install_pack(int argc, char **argv, Data * data)
     ret = system(str);
   }
 
-  strcpy(str,"Enabled");
+  strcpy(str,"cat .piratepack/logs/install_last.log >> .piratepack/logs/piratepack_install.log 2>> .piratepack/logs/piratepack_install.log");
+  ret = system(str);
+
+  gchar * error = exec("grep ERROR .piratepack/logs/install_last.log",100);
+  rest = 0;
+  tok = 0;
+  ptr = error;
+
+  if (!(tok = strtok_r(ptr, " \n", &rest))) {
+    strcpy(str,"Enabled");
+  }
+  else {
+    strcpy(str,"Some components failed to install.\nSee ~/.piratepack/logs/install_last.log for details.");
+  }
+
   fprintf( stderr, "%s\n", str );
   fflush(stderr);
 
+  if (error != 0) {
+    g_free(error);
+  }
   g_free( curpath );
   g_free( logpipe );
   g_free( str );
@@ -1144,11 +1161,11 @@ reinstall_pack(int argc, char **argv, Data * data)
 
   strcpy (logpipe,">> /dev/null 2>> ");
   strcat (logpipe,homedir);
-  strcat (logpipe,"/.piratepack/logs/piratepack_install.log");
+  strcat (logpipe,"/.piratepack/logs/install_last.log");
 
   strcpy(str,"echo \"[$(date)]\" >> ");
   strcat(str,homedir);
-  strcat(str,"/.piratepack/logs/piratepack_install.log");
+  strcat(str,"/.piratepack/logs/install_last.log");
   ret = system(str);
 
   strcpy (str,"chmod u+r .piratepack ");
@@ -1174,7 +1191,7 @@ reinstall_pack(int argc, char **argv, Data * data)
   gchar * processpathsub = substring(processpath,strlen(basedir)+1,strlen(processpath)-strlen(basedir)-1);
   strcpy (str,"echo Path: ");
   strcat (str,processpathsub);
-  strcat (str," >> .installed 2>> logs/piratepack_install.log");
+  strcat (str," >> .installed 2>> logs/install_last.log");
   ret = system(str); 
   g_free(processpathsub);
 
@@ -1214,7 +1231,7 @@ reinstall_pack(int argc, char **argv, Data * data)
   ret = chdir(homedir);
   ret = chdir(".piratepack");
 
-  ret = system("echo firefox-mods >> .installed 2>> logs/piratepack_install.log");
+  ret = system("echo firefox-mods >> .installed 2>> logs/install_last.log");
 
   //install tor-browser
 
@@ -1248,7 +1265,7 @@ reinstall_pack(int argc, char **argv, Data * data)
   ret = chdir(homedir);
   ret = chdir(".piratepack");
 
-  ret = system("echo tor-browser >> .installed 2>> logs/piratepack_install.log");
+  ret = system("echo tor-browser >> .installed 2>> logs/install_last.log");
 
   //install i2p-browser
 
@@ -1279,7 +1296,7 @@ reinstall_pack(int argc, char **argv, Data * data)
   ret = chdir(homedir);
   ret = chdir(".piratepack");
 
-  ret = system("echo i2p-browser >> .installed 2>> logs/piratepack_install.log");
+  ret = system("echo i2p-browser >> .installed 2>> logs/install_last.log");
 
   //install file-manager
 
@@ -1313,7 +1330,7 @@ reinstall_pack(int argc, char **argv, Data * data)
   ret = chdir(homedir);
   ret = chdir(".piratepack");
 
-  ret = system("echo file-manager >> .installed 2>> logs/piratepack_install.log");
+  ret = system("echo file-manager >> .installed 2>> logs/install_last.log");
 
   //install ppcavpn
 
@@ -1347,7 +1364,7 @@ reinstall_pack(int argc, char **argv, Data * data)
   ret = chdir(homedir);
   ret = chdir(".piratepack");
 
-  ret = system("echo ppcavpn >> .installed 2>> logs/piratepack_install.log");
+  ret = system("echo ppcavpn >> .installed 2>> logs/install_last.log");
 
 //install bitcoin
 
@@ -1381,7 +1398,7 @@ reinstall_pack(int argc, char **argv, Data * data)
   ret = chdir(homedir);
   ret = chdir(".piratepack");
 
-  ret = system("echo bitcoin >> .installed 2>> logs/piratepack_install.log");
+  ret = system("echo bitcoin >> .installed 2>> logs/install_last.log");
 
   //install theme
 
@@ -1408,7 +1425,7 @@ reinstall_pack(int argc, char **argv, Data * data)
   ret = chdir(homedir);
   ret = chdir(".piratepack");
 
-  ret = system("echo theme >> .installed 2>> logs/piratepack_install.log");
+  ret = system("echo theme >> .installed 2>> logs/install_last.log");
 
   strcpy(str,maindir);
   strcat(str,"/share");
@@ -1458,10 +1475,27 @@ reinstall_pack(int argc, char **argv, Data * data)
     ret = system(str);
   }
 
-  strcpy(str,"Updated");
+  strcpy(str,"cat .piratepack/logs/install_last.log >> .piratepack/logs/piratepack_install.log 2>> .piratepack/logs/piratepack_install.log");
+  ret = system(str);
+
+  gchar * error = exec("grep ERROR .piratepack/logs/install_last.log",100);
+  rest = 0;
+  tok = 0;
+  ptr = error;
+
+  if (!(tok = strtok_r(ptr, " \n", &rest))) {
+    strcpy(str,"Updated");
+  }
+  else {
+    strcpy(str,"Some components failed to install.\nSee ~/.piratepack/logs/install_last.log for details.");
+  }
+
   fprintf( stderr, "%s\n", str );
   fflush(stderr);
 
+  if (error != 0) {
+    g_free(error);
+  }
   g_free( curpath );
   g_free( logpipe );
   g_free( str );
