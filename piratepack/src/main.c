@@ -966,9 +966,9 @@ install_pack(int argc, char **argv, Data * data)
   ret = system(str);
 
   gchar * error = exec("grep ERROR .piratepack/logs/install_last.log",100);
-  rest = 0;
-  tok = 0;
-  ptr = error;
+  gchar * rest = 0;
+  gchar * tok = 0;
+  gchar * ptr = error;
 
   if (!(tok = strtok_r(ptr, " \n", &rest))) {
     strcpy(str,"Enabled");
@@ -1479,9 +1479,9 @@ reinstall_pack(int argc, char **argv, Data * data)
   ret = system(str);
 
   gchar * error = exec("grep ERROR .piratepack/logs/install_last.log",100);
-  rest = 0;
-  tok = 0;
-  ptr = error;
+  gchar * rest = 0;
+  gchar * tok = 0;
+  gchar * ptr = error;
 
   if (!(tok = strtok_r(ptr, " \n", &rest))) {
     strcpy(str,"Updated");
@@ -2245,8 +2245,8 @@ main( int argc, char ** argv ) {
       }
 
       gchar * pids = exec("pidof piratepack",100);
-      gchar * rest;
-      gchar * tok;
+      gchar * rest = 0;
+      gchar * tok = 0;
       gchar * ptr = pids;
       gchar match = 0;
 
