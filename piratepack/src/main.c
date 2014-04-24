@@ -338,6 +338,18 @@ cb_err_watch( GIOChannel   *channel,
 	gtk_progress_bar_set_fraction((GtkProgressBar *)data->progress, 0.0);
 	g_free(data->action);
       }
+      else if (g_strcmp0("ERROR",gtk_label_get_label(data->message))==0) {
+	gtk_container_remove((GtkContainer *)data->hbuttonbox,(GtkWidget *)data->button_enable);
+        data->button_disable = (GtkButton *)gtk_button_new_with_label("Disable");
+        gtk_widget_set_size_request((GtkWidget *)data->button_disable,120,-1);
+        g_signal_connect(G_OBJECT(data->button_disable), "clicked", G_CALLBACK(cb_execute_remove), data);
+        gtk_container_add((GtkContainer *)data->hbuttonbox,(GtkWidget *)data->button_disable);
+	gtk_widget_show((GtkWidget *)data->button_disable);
+	g_source_remove( data->timeout_id );
+	gtk_progress_bar_set_fraction((GtkProgressBar *)data->progress, 0.0);
+        g_free(data->action);
+	gtk_label_set_label(data->message,"Some components failed to install.\nSee ~/.piratepack/logs/install_last.log for details.");
+      }
     }
     else if (strcmp(data->action,"update")==0) {
       if (g_strcmp0("Updated\n",gtk_label_get_label(data->message)) == 0) {
@@ -650,9 +662,12 @@ install_pack(int argc, char **argv, Data * data)
   strcat (logpipe,homedir);
   strcat (logpipe,"/.piratepack/logs/install_last.log");
 
-  strcpy(str,"echo \"[$(date)]\" >> ");
-  strcat(str,homedir);
-  strcat(str,"/.piratepack/logs/install_last.log");
+  strcpy(str,"rm -f ");
+  strcat(str,".piratepack/logs/install_last.log 2>> .piratepack/logs/piratepack_install.log");
+  ret = system(str);
+
+  strcpy(str,"echo \"[$(date)]\" > ");
+  strcat(str,"/.piratepack/logs/install_last.log 2>> .piratepack/loga/piratepack_install.log");
   ret = system(str);
 
   strcpy (str,"chmod u+rwx .piratepack ");
@@ -974,7 +989,7 @@ install_pack(int argc, char **argv, Data * data)
     strcpy(str,"Enabled");
   }
   else {
-    strcpy(str,"Some components failed to install.\nSee ~/.piratepack/logs/install_last.log for details.");
+    strcpy(str,"ERROR");
   }
 
   fprintf( stderr, "%s\n", str );
@@ -1030,8 +1045,7 @@ reinstall_pack(int argc, char **argv, Data * data)
   strcat (logpipe,"/.piratepack/logs/piratepack_remove.log");
 
   strcpy(str,"echo \"[$(date)]\" >> ");
-  strcat(str,homedir);
-  strcat(str,"/.piratepack/logs/piratepack_remove.log");
+  strcat(str,".piratepack/logs/piratepack_remove.log");
   ret = system(str);
 
   if (g_file_test(".piratepack",G_FILE_TEST_IS_DIR)) {
@@ -1163,7 +1177,11 @@ reinstall_pack(int argc, char **argv, Data * data)
   strcat (logpipe,homedir);
   strcat (logpipe,"/.piratepack/logs/install_last.log");
 
-  strcpy(str,"echo \"[$(date)]\" >> ");
+  strcpy(str,"rm -f ");
+  strcat(str,".piratepack/logs/install_last.log 2>> .piratepack/logs/piratepack_install.log");
+  ret = system(str);
+
+  strcpy(str,"echo \"[$(date)]\" > ");
   strcat(str,homedir);
   strcat(str,"/.piratepack/logs/install_last.log");
   ret = system(str);
@@ -1487,7 +1505,7 @@ reinstall_pack(int argc, char **argv, Data * data)
     strcpy(str,"Updated");
   }
   else {
-    strcpy(str,"Some components failed to install.\nSee ~/.piratepack/logs/install_last.log for details.");
+    strcpy(str,"ERROR");
   }
 
   fprintf( stderr, "%s\n", str );
@@ -1547,7 +1565,6 @@ int remove_pack(int argc, char **argv, Data * data) {
   strcat (logpipe,"/.piratepack/logs/piratepack_remove.log");
 
   strcpy(str,"echo \"[$(date)]\" >> ");
-  strcat(str,homedir);
   strcat(str,"/.piratepack/logs/piratepack_remove.log");
   ret = system(str);
 
