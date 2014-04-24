@@ -663,11 +663,11 @@ install_pack(int argc, char **argv, Data * data)
   strcat (logpipe,"/.piratepack/logs/install_last.log");
 
   strcpy(str,"rm -f ");
-  strcat(str,".piratepack/logs/install_last.log 2>> .piratepack/logs/piratepack_install.log");
+  strcat(str,".piratepack/logs/install_last.log >> /dev/null 2>> .piratepack/logs/piratepack_install.log");
   ret = system(str);
 
   strcpy(str,"echo \"[$(date)]\" > ");
-  strcat(str,"/.piratepack/logs/install_last.log 2>> .piratepack/loga/piratepack_install.log");
+  strcat(str,".piratepack/logs/install_last.log 2>> .piratepack/loga/piratepack_install.log");
   ret = system(str);
 
   strcpy (str,"chmod u+rwx .piratepack ");
@@ -1182,8 +1182,7 @@ reinstall_pack(int argc, char **argv, Data * data)
   ret = system(str);
 
   strcpy(str,"echo \"[$(date)]\" > ");
-  strcat(str,homedir);
-  strcat(str,"/.piratepack/logs/install_last.log");
+  strcat(str,".piratepack/logs/install_last.log");
   ret = system(str);
 
   strcpy (str,"chmod u+r .piratepack ");
