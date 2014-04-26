@@ -21,10 +21,13 @@ then
 	    continue
 	fi
 
-	if [[ "$(xfconf-query -c xfce4-desktop -p /backdrop/screen0/monitor0/image-path -t string)" == "$line" ]]
-        then
-            xfconf-query -c xfce4-desktop -p "/backdrop/screen0/monitor0/image-path" -t "string" -s "/usr/share/backgrounds/xfce/xfce-blue.jpg"
-        fi
+	if hash xfconf-query 2>/dev/null
+	then
+	    if [[ "$(xfconf-query -c xfce4-desktop -p /backdrop/screen0/monitor0/image-path -t string)" == "$line" ]]
+            then
+		xfconf-query -c xfce4-desktop -p "/backdrop/screen0/monitor0/image-path" -t "string" -s "/usr/share/backgrounds/xfce/xfce-blue.jpg"
+            fi
+	fi
     done <"$localdir"/.installed
 fi
 

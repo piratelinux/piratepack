@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -e
+
 curdir="$(pwd)"
 cd ../..
 maindir="$(pwd)"
@@ -7,16 +9,15 @@ cd
 homedir="$(pwd)"
 localdir="$homedir"/.piratepack/theme
 
-issue="$(cat /etc/issue)"
-
-curimage=""
-
-xfconf-query -n -c xfce4-desktop -p "/backdrop/screen0/monitor0/image-path" -t "string" -s "$curdir/background.jpg"
-curimage="$(xfconf-query -c xfce4-desktop -p /backdrop/screen0/monitor0/image-path -t string)"
-
-if [[ "$curimage" == "$curdir/background.jpg" ]]
+if hash xfconf-query 2>/dev/null
 then
-    echo "$curdir/background.jpg" >> "$localdir"/.installed
+    xfconf-query -n -c xfce4-desktop -p "/backdrop/screen0/monitor0/image-path" -t "string" -s "$curdir/background.jpg"
+    curimage="$(xfconf-query -c xfce4-desktop -p /backdrop/screen0/monitor0/image-path -t string)"
+
+    if [[ "$curimage" == "$curdir/background.jpg" ]]
+    then
+	echo "$curdir/background.jpg" >> "$localdir"/.installed
+    fi
 fi
 
 cd

@@ -268,7 +268,9 @@ int refresh_theme(gchar * maindir, const gchar * homedir, gchar * option) {
   strcat(str,"/share/theme");
   ret = chdir(str);
 
-  strcpy (str,"./install_theme.sh");
+  strcpy (str,"(./install_theme.sh || echo \"$(date) ERROR: theme failed to install.\" >&2) >> /dev/null 2>> ");
+  strcat(str,homedir);
+  strcat(str,"/.piratepack/logs/theme_install.log");
   ret = system(str);
 
   g_free(str);
@@ -322,11 +324,9 @@ cb_err_watch( GIOChannel   *channel,
     }
  
     g_io_channel_read_line( channel, &string, &size, 0, 0 );
-    gtk_label_set_label( data->message, string);
-    g_free( string );
 
     if (strcmp(data->action,"install")==0) {
-      if (g_strcmp0("Enabled\n",gtk_label_get_label(data->message)) == 0) {
+      if (g_strcmp0("Enabled\n",string) == 0) {
 	gtk_container_remove((GtkContainer *)data->hbuttonbox,(GtkWidget *)data->button_enable);
 	data->button_disable = (GtkButton *)gtk_button_new_with_label("Disable");
 	gtk_widget_set_size_request((GtkWidget *)data->button_disable,120,-1);
@@ -337,8 +337,9 @@ cb_err_watch( GIOChannel   *channel,
 	g_source_remove( data->timeout_id );
 	gtk_progress_bar_set_fraction((GtkProgressBar *)data->progress, 0.0);
 	g_free(data->action);
+	gtk_label_set_label(data->message,"Enabled");
       }
-      else if (g_strcmp0("ERROR",gtk_label_get_label(data->message))==0) {
+      else if (g_strcmp0("INSTALL ERROR\n",string)==0) {
 	gtk_container_remove((GtkContainer *)data->hbuttonbox,(GtkWidget *)data->button_enable);
         data->button_disable = (GtkButton *)gtk_button_new_with_label("Disable");
         gtk_widget_set_size_request((GtkWidget *)data->button_disable,120,-1);
@@ -350,18 +351,31 @@ cb_err_watch( GIOChannel   *channel,
         g_free(data->action);
 	gtk_label_set_label(data->message,"Some components failed to install.\nSee ~/.piratepack/logs/install_last.log for details.");
       }
+      else if (g_strcmp0("REMOVE ERROR\n",string)==0) {
+	gtk_container_remove((GtkContainer *)data->hbuttonbox,(GtkWidget *)data->button_enable);
+        data->button_disable = (GtkButton *)gtk_button_new_with_label("Disable");
+	gtk_widget_set_size_request((GtkWidget *)data->button_disable,120,-1);
+        g_signal_connect(G_OBJECT(data->button_disable), "clicked", G_CALLBACK(cb_execute_remove), data);
+        gtk_container_add((GtkContainer *)data->hbuttonbox,(GtkWidget *)data->button_disable);
+        gtk_widget_show((GtkWidget *)data->button_disable);
+        g_source_remove( data->timeout_id );
+        gtk_progress_bar_set_fraction((GtkProgressBar *)data->progress, 0.0);
+        g_free(data->action);
+        gtk_label_set_label(data->message,"Some components failed to install.\nSee ~/.piratepack/logs/install_last.log for details.");
+      }
     }
     else if (strcmp(data->action,"update")==0) {
-      if (g_strcmp0("Updated\n",gtk_label_get_label(data->message)) == 0) {
+      if (g_strcmp0("Updated\n",string) == 0) {
 	gtk_widget_set_sensitive((GtkWidget *)data->button_disable,TRUE);
 	/* Remove timeout callback */
 	g_source_remove( data->timeout_id );
 	gtk_progress_bar_set_fraction((GtkProgressBar *)data->progress, 0.0);
 	g_free(data->action);
+	gtk_label_set_label(data->message,"Updated");
       }
     }
     else if (strcmp(data->action,"remove")==0) {
-      if (g_strcmp0("Disabled\n",gtk_label_get_label((GtkLabel *)data->message)) == 0) {
+      if (g_strcmp0("Disabled\n",string) == 0) {
         gtk_container_remove((GtkContainer *)data->hbuttonbox,(GtkWidget *)data->button_disable);
         data->button_enable = (GtkButton *)gtk_button_new_with_label("Enable");
         gtk_widget_set_size_request((GtkWidget *)data->button_enable,120,-1);
@@ -372,10 +386,11 @@ cb_err_watch( GIOChannel   *channel,
 	g_source_remove( data->timeout_id );
 	gtk_progress_bar_set_fraction((GtkProgressBar *)data->progress, 0.0);
 	g_free(data->action);
+	gtk_label_set_label(data->message,"Disabled");
       }
     }
     else if (strcmp(data->action,"install_pirate_file")==0) {
-      if ( (g_strcmp0("Installed\n",gtk_label_get_label(data->message)) == 0) || (g_strcmp0("File not authentic\n",gtk_label_get_label(data->message)) == 0) || (g_strcmp0("Error\n",gtk_label_get_label(data->message)) == 0) ) {
+      if ( (g_strcmp0("Installed\n",string) == 0) || (g_strcmp0("File not authentic\n",gtk_label_get_label(data->message)) == 0) || (g_strcmp0("Error\n",gtk_label_get_label(data->message)) == 0) ) {
         gtk_container_remove((GtkContainer *)data->hbuttonbox,(GtkWidget *)data->button_yes);
         gtk_container_remove((GtkContainer *)data->hbuttonbox,(GtkWidget *)data->button_no);
         data->button_yes = (GtkButton *)gtk_button_new_with_label("Exit");
@@ -387,8 +402,10 @@ cb_err_watch( GIOChannel   *channel,
 	g_source_remove( data->timeout_id );
 	gtk_progress_bar_set_fraction((GtkProgressBar *)data->progress, 0.0);
 	g_free(data->action);
+	gtk_label_set_label(data->message,"Installed");
       }
     }
+    g_free(string);
     return( TRUE );
 }
  
@@ -662,12 +679,12 @@ install_pack(int argc, char **argv, Data * data)
   strcat (logpipe,homedir);
   strcat (logpipe,"/.piratepack/logs/install_last.log");
 
-  strcpy(str,"rm -f ");
-  strcat(str,".piratepack/logs/install_last.log >> /dev/null 2>> .piratepack/logs/piratepack_install.log");
+  strcpy(str,"echo \"[$(date)]\" > ");
+  strcat(str,".piratepack/logs/install_last.log 2>> .piratepack/logs/piratepack_install.log");
   ret = system(str);
 
-  strcpy(str,"echo \"[$(date)]\" > ");
-  strcat(str,".piratepack/logs/install_last.log 2>> .piratepack/loga/piratepack_install.log");
+  strcpy (str,"rm -f .piratepack/.error ");
+  strcat (str,logpipe);
   ret = system(str);
 
   strcpy (str,"chmod u+rwx .piratepack ");
@@ -722,7 +739,7 @@ install_pack(int argc, char **argv, Data * data)
 
   ret = chdir(str);
 
-  strcpy (str,"(./install_firefox-mods.sh || echo \"ERROR: firefox-mods failed to install\" >&2) ");
+  strcpy (str,"(./install_firefox-mods.sh || echo \"ERROR: firefox-mods failed to install.\" >&2) ");
   strcat (str,logpipe);
   ret = system(str);
 
@@ -760,7 +777,7 @@ install_pack(int argc, char **argv, Data * data)
 
   ret = chdir(str);
   
-  strcpy (str,"(./install_tor-browser.sh || echo \"ERROR: tor-browser failed to install\" >&2) ");
+  strcpy (str,"(./install_tor-browser.sh || echo \"ERROR: tor-browser failed to install.\" >&2) ");
   strcat (str,logpipe);
   ret = system(str);
 
@@ -791,7 +808,7 @@ install_pack(int argc, char **argv, Data * data)
 
   ret = chdir(str);
 
-  strcpy (str,"(./install_i2p-browser.sh || echo \"ERROR: i2p-browser failed to install\" >&2) ");
+  strcpy (str,"(./install_i2p-browser.sh || echo \"ERROR: i2p-browser failed to install.\" >&2) ");
   strcat (str,logpipe);
   ret = system(str);
 
@@ -825,7 +842,7 @@ install_pack(int argc, char **argv, Data * data)
 
   ret = chdir(str);
 
-  strcpy (str,"(./install_file-manager.sh || echo \"ERROR: file-manager failed to install\" >&2) ");
+  strcpy (str,"(./install_file-manager.sh || echo \"ERROR: file-manager failed to install.\" >&2) ");
   strcat (str,logpipe);
   ret = system(str);
 
@@ -859,7 +876,7 @@ install_pack(int argc, char **argv, Data * data)
 
   ret = chdir(str);
 
-  strcpy (str,"(./install_ppcavpn.sh || echo \"ERROR: ppcavpn failed to install\" >&2) ");
+  strcpy (str,"(./install_ppcavpn.sh || echo \"ERROR: ppcavpn failed to install.\" >&2) ");
   strcat (str,logpipe);
   ret = system(str);
 
@@ -893,7 +910,7 @@ install_pack(int argc, char **argv, Data * data)
 
   ret = chdir(str);
 
-  strcpy (str,"(./install_bitcoin.sh || echo \"ERROR: bitcoin failed to install\" >&2) ");
+  strcpy (str,"(./install_bitcoin.sh || echo \"ERROR: bitcoin failed to install.\" >&2) ");
   strcat (str,logpipe);
   ret = system(str);
 
@@ -989,7 +1006,9 @@ install_pack(int argc, char **argv, Data * data)
     strcpy(str,"Enabled");
   }
   else {
-    strcpy(str,"ERROR");
+    strcpy (str,"touch .piratepack/.error >> /dev/null >> .piratepack/logs/piratepack_install.log ");
+    ret = system(str);
+    strcpy(str,"INSTALL ERROR");
   }
 
   fprintf( stderr, "%s\n", str );
@@ -1042,10 +1061,14 @@ reinstall_pack(int argc, char **argv, Data * data)
 
   strcpy (logpipe,">> /dev/null 2>> ");
   strcat (logpipe,homedir);
-  strcat (logpipe,"/.piratepack/logs/piratepack_remove.log");
+  strcat (logpipe,"/.piratepack/logs/remove_last.log");
 
-  strcpy(str,"echo \"[$(date)]\" >> ");
-  strcat(str,".piratepack/logs/piratepack_remove.log");
+  strcpy(str,"echo \"[$(date)]\" > ");
+  strcat(str,".piratepack/logs/remove_last.log 2>> .piratepack/logs/piratepack_remove.log");
+  ret = system(str);
+
+  strcpy (str,"rm -f .piratepack/.error ");
+  strcat (str,logpipe);
   ret = system(str);
 
   if (g_file_test(".piratepack",G_FILE_TEST_IS_DIR)) {
@@ -1086,10 +1109,12 @@ reinstall_pack(int argc, char **argv, Data * data)
         strcat(str,line);
         ret = chdir(str);
 
-        strcpy (str,"./remove_");
-        strcat (str,line);
-        strcat (str,".sh ");
-        strcat (str,logpipe);
+	strcpy(str,"(./remove_");
+        strcat(str,line);
+        strcat(str,".sh || echo \"ERROR: ");
+	strcat(str,line);
+        strcat(str," failed to be removed.\" >&2) ");
+        strcat(str,logpipe);
         ret = system(str);
 
 	ret = chdir(homedir);
@@ -1121,11 +1146,11 @@ reinstall_pack(int argc, char **argv, Data * data)
   strcat(str,"/share");
   ret = chdir(str);
 
-  strcpy(str,"./removepath.sh '");
+  strcpy(str,"(./removepath.sh '");
   strcat(str,basedir);
   strcat(str,"' '");
   strcat(str,maindir);
-  strcat(str,"' ");
+  strcat(str,"' || echo \"ERROR: failed to remove piratepack from PATH.\" >&2)");
   strcat(str,logpipe);
   ret = system(str);
 
@@ -1157,6 +1182,13 @@ reinstall_pack(int argc, char **argv, Data * data)
     ret = system(str);
   }
 
+  strcpy(str,"cat .piratepack/logs/remove_last.log >> .piratepack/logs/piratepack_remove.log 2>> .piratepack/logs/piratepack_remove.log");
+  ret = system(str);
+
+  //Append remove log to install log (since both are being done now in reinstall)
+  strcpy(str,"cat .piratepack/logs/remove_last.log > .piratepack/logs/install_last.log 2>> .piratepack/logs/piratepack_remove.log");
+  ret = system(str);
+
   //Start Install
 
   ret = chdir(homedir);
@@ -1177,12 +1209,8 @@ reinstall_pack(int argc, char **argv, Data * data)
   strcat (logpipe,homedir);
   strcat (logpipe,"/.piratepack/logs/install_last.log");
 
-  strcpy(str,"rm -f ");
+  strcpy(str,"echo \"[$(date)]\" >> ");
   strcat(str,".piratepack/logs/install_last.log 2>> .piratepack/logs/piratepack_install.log");
-  ret = system(str);
-
-  strcpy(str,"echo \"[$(date)]\" > ");
-  strcat(str,".piratepack/logs/install_last.log");
   ret = system(str);
 
   strcpy (str,"chmod u+r .piratepack ");
@@ -1237,7 +1265,7 @@ reinstall_pack(int argc, char **argv, Data * data)
 
   ret = chdir(str);
 
-  strcpy (str,"(./install_firefox-mods.sh || echo \"ERROR: firefox-mods failed to install\" >&2) ");
+  strcpy (str,"(./install_firefox-mods.sh || echo \"ERROR: firefox-mods failed to install.\" >&2) ");
   strcat (str,logpipe);
   ret = system(str);
 
@@ -1275,7 +1303,7 @@ reinstall_pack(int argc, char **argv, Data * data)
 
   ret = chdir(str);
   
-  strcpy (str,"(./install_tor-browser.sh || echo \"ERROR: tor-browser failed to install\" >&2) ");
+  strcpy (str,"(./install_tor-browser.sh || echo \"ERROR: tor-browser failed to install.\" >&2) ");
   strcat (str,logpipe);
   ret = system(str);
 
@@ -1306,7 +1334,7 @@ reinstall_pack(int argc, char **argv, Data * data)
 
   ret = chdir(str);
 
-  strcpy (str,"(./install_i2p-browser.sh || echo \"ERROR: i2p-browser failed to install\" >&2) ");
+  strcpy (str,"(./install_i2p-browser.sh || echo \"ERROR: i2p-browser failed to install.\" >&2) ");
   strcat (str,logpipe);
   ret = system(str);
 
@@ -1340,7 +1368,7 @@ reinstall_pack(int argc, char **argv, Data * data)
 
   ret = chdir(str);
 
-  strcpy (str,"(./install_file-manager.sh || echo \"ERROR: file-manager failed to install\" >&2) ");
+  strcpy (str,"(./install_file-manager.sh || echo \"ERROR: file-manager failed to install.\" >&2) ");
   strcat (str,logpipe);
   ret = system(str);
 
@@ -1374,7 +1402,7 @@ reinstall_pack(int argc, char **argv, Data * data)
 
   ret = chdir(str);
 
-  strcpy (str,"(./install_ppcavpn.sh || echo \"ERROR: ppcavpn failed to install\" >&2) ");
+  strcpy (str,"(./install_ppcavpn.sh || echo \"ERROR: ppcavpn failed to install.\" >&2) ");
   strcat (str,logpipe);
   ret = system(str);
 
@@ -1408,7 +1436,7 @@ reinstall_pack(int argc, char **argv, Data * data)
 
   ret = chdir(str);
 
-  strcpy (str,"(./install_bitcoin.sh || echo \"ERROR: bitcoin failed to install\" >&2) ");
+  strcpy (str,"(./install_bitcoin.sh || echo \"ERROR: bitcoin failed to install.\" >&2) ");
   strcat (str,logpipe);
   ret = system(str);
 
@@ -1504,7 +1532,9 @@ reinstall_pack(int argc, char **argv, Data * data)
     strcpy(str,"Updated");
   }
   else {
-    strcpy(str,"ERROR");
+    strcpy (str,"touch .piratepack/.error >> /dev/null >> .piratepack/logs/piratepack_install.log ");
+    ret = system(str);
+    strcpy(str,"INSTALL ERROR");
   }
 
   fprintf( stderr, "%s\n", str );
@@ -1561,10 +1591,14 @@ int remove_pack(int argc, char **argv, Data * data) {
 
   strcpy (logpipe,">> /dev/null 2>> ");
   strcat (logpipe,homedir);
-  strcat (logpipe,"/.piratepack/logs/piratepack_remove.log");
+  strcat (logpipe,"/.piratepack/logs/remove_last.log");
 
-  strcpy(str,"echo \"[$(date)]\" >> ");
-  strcat(str,"/.piratepack/logs/piratepack_remove.log");
+  strcpy(str,"echo \"[$(date)]\" > ");
+  strcat(str,".piratepack/logs/remove_last.log 2>> .piratepack/logs/piratepack_remove.log");
+  ret = system(str);
+
+  strcpy (str,"rm -f .piratepack/.error ");
+  strcat (str,logpipe);
   ret = system(str);
 
   if (g_file_test(".piratepack",G_FILE_TEST_IS_DIR)) {
@@ -1605,10 +1639,12 @@ int remove_pack(int argc, char **argv, Data * data) {
 	strcat(str,line);
 	ret = chdir(str);
 
-	strcpy (str,"./remove_");
-	strcat (str,line);
-	strcat (str,".sh ");
-	strcat (str,logpipe);
+	strcpy(str,"(./remove_");
+	strcat(str,line);
+	strcat(str,".sh || echo \"ERROR: ");
+	strcat(str,line);
+	strcat(str," failed to be removed.\" >&2) ");
+	strcat(str,logpipe);
 	ret = system(str);
 
 	ret = chdir(homedir);
@@ -1640,11 +1676,11 @@ int remove_pack(int argc, char **argv, Data * data) {
   strcat(str,"/share");
   ret = chdir(str);
 
-  strcpy(str,"./removepath.sh '");
+  strcpy(str,"(./removepath.sh '");
   strcat(str,basedir);
   strcat(str,"' '");
   strcat(str,maindir);
-  strcat(str,"' ");
+  strcat(str,"' || echo \"ERROR: failed to remove piratepack from PATH.\" >&2)");
   strcat(str,logpipe);
   ret = system(str);
 
@@ -1676,10 +1712,29 @@ int remove_pack(int argc, char **argv, Data * data) {
     ret = system(str);
   }
 
-  strcpy(str,"Disabled");
+  strcpy(str,"cat .piratepack/logs/remove_last.log >> .piratepack/logs/piratepack_remove.log 2>> .piratepack/logs/piratepack_remove.log");
+  ret = system(str);
+
+  gchar * error = exec("grep ERROR .piratepack/logs/remove_last.log",100);
+  gchar * rest = 0;
+  gchar * tok = 0;
+  gchar * ptr = error;
+
+  if (!(tok = strtok_r(ptr, " \n", &rest))) {
+    strcpy(str,"Disabled");
+  }
+  else {
+    strcpy (str,"touch .piratepack/.error >> /dev/null >> .piratepack/logs/piratepack_remove.log ");
+    ret = system(str);
+    strcpy(str,"REMOVE ERROR");
+  }
+
   fprintf( stderr, "%s\n", str );
   fflush(stderr);
 
+  if (error != 0) {
+    g_free(error);
+  }
   g_free( curpath );
   g_free( logpipe );
   g_free( str );
@@ -2041,31 +2096,56 @@ int gui_status(int argc, char ** argv, Data * data) {
   gtk_table_attach( GTK_TABLE( table1 ), (GtkWidget *)table2, 1, 2, 0, 1, GTK_EXPAND | GTK_FILL, GTK_EXPAND | GTK_FILL, 0, 0 );
   logo = (GtkImage *)gtk_image_new_from_file(str);
   gtk_table_attach( GTK_TABLE( table2 ), (GtkWidget *)logo, 1, 2, 1, 2, GTK_EXPAND | GTK_FILL, GTK_EXPAND | GTK_FILL, 5, 5 );
-  message = (GtkLabel *)gtk_label_new("The Pirate Pack enhances your digital freedom\nLearn more at piratelinux.org");
+
+  hbuttonbox = (GtkHButtonBox *)gtk_hbutton_box_new();
+
+  strcpy (str,homedir);
+  strcat (str,"/.piratepack/.error");
+  if (g_file_test(str,G_FILE_TEST_IS_REGULAR)) {
+    strcpy (str,homedir);
+    strcat (str,"/.piratepack/.installed");
+    if (g_file_test(str,G_FILE_TEST_IS_REGULAR)) {
+      message = (GtkLabel *)gtk_label_new("Some components failed to install.\nSee ~/.piratepack/logs/install_last.log for details.");
+      button_disable = (GtkButton *)gtk_button_new_with_label( "Disable" );
+      gtk_widget_set_size_request((GtkWidget *)button_disable,120,-1);
+      g_signal_connect( G_OBJECT( button_disable ), "clicked", G_CALLBACK( cb_execute_remove ), data );
+      gtk_container_add((GtkContainer *)hbuttonbox,(GtkWidget *)button_disable);
+      data->button_disable = button_disable;
+    }
+    else {
+      message = (GtkLabel *)gtk_label_new("Some components failed to be removed.\nSee ~/.piratepack/logs/remove_last.log for details.");
+      button_enable = (GtkButton *)gtk_button_new_with_label( "Enable" );
+      gtk_widget_set_size_request((GtkWidget *)button_enable,120,-1);
+      g_signal_connect( G_OBJECT( button_enable ), "clicked", G_CALLBACK( cb_execute_install ), data );
+      gtk_container_add((GtkContainer *)hbuttonbox,(GtkWidget *)button_enable);
+      data->button_enable = button_enable;
+    }
+  }
+  else {
+    message = (GtkLabel *)gtk_label_new("The Pirate Pack enhances your digital freedom\nLearn more at piratelinux.org");
+    strcpy (str,homedir);
+    strcat (str,"/.piratepack/.installed");
+    if (g_file_test(str,G_FILE_TEST_IS_REGULAR)) {
+      button_disable = (GtkButton *)gtk_button_new_with_label( "Disable" );
+      gtk_widget_set_size_request((GtkWidget *)button_disable,120,-1);
+      g_signal_connect( G_OBJECT( button_disable ), "clicked", G_CALLBACK( cb_execute_remove ), data );
+      gtk_container_add((GtkContainer *)hbuttonbox,(GtkWidget *)button_disable);
+      data->button_disable = button_disable;
+    }
+    else {
+      button_enable = (GtkButton *)gtk_button_new_with_label( "Enable" );
+      gtk_widget_set_size_request((GtkWidget *)button_enable,120,-1);
+      g_signal_connect( G_OBJECT( button_enable ), "clicked", G_CALLBACK( cb_execute_install ), data );
+      gtk_container_add((GtkContainer *)hbuttonbox,(GtkWidget *)button_enable);
+      data->button_enable = button_enable;
+    }
+  }
   gtk_label_set_justify((GtkLabel *)message,GTK_JUSTIFY_CENTER);
   gtk_widget_set_size_request((GtkWidget *)message,-1,80);
   gtk_misc_set_alignment((GtkMisc *)message,0.5,1);
   gtk_table_attach( GTK_TABLE( table1 ), (GtkWidget *)message, 1, 2, 1, 2, GTK_EXPAND | GTK_FILL, GTK_EXPAND | GTK_FILL, 5, 5 );
   progress = (GtkProgressBar *)gtk_progress_bar_new();
   gtk_table_attach( GTK_TABLE( table1 ),(GtkWidget *)progress, 1, 2, 2, 3, GTK_FILL, GTK_SHRINK | GTK_FILL, 5, 0 );
-  strcpy (str,homedir);
-  strcat (str,"/.piratepack/.installed");
-  hbuttonbox = (GtkHButtonBox *)gtk_hbutton_box_new();
-  
-  if (g_file_test(str,G_FILE_TEST_IS_REGULAR)) {
-    button_disable = (GtkButton *)gtk_button_new_with_label( "Disable" );
-    gtk_widget_set_size_request((GtkWidget *)button_disable,120,-1);
-    g_signal_connect( G_OBJECT( button_disable ), "clicked", G_CALLBACK( cb_execute_remove ), data );
-    gtk_container_add((GtkContainer *)hbuttonbox,(GtkWidget *)button_disable);
-    data->button_disable = button_disable;
-  }
-  else {
-    button_enable = (GtkButton *)gtk_button_new_with_label( "Enable" );
-    gtk_widget_set_size_request((GtkWidget *)button_enable,120,-1);
-    g_signal_connect( G_OBJECT( button_enable ), "clicked", G_CALLBACK( cb_execute_install ), data );
-    gtk_container_add((GtkContainer *)hbuttonbox,(GtkWidget *)button_enable);
-    data->button_enable = button_enable;
-  }
   
   gtk_table_attach( GTK_TABLE( table1 ), (GtkWidget *)hbuttonbox, 1, 2, 3, 4, 0, 0, 5, 5 );
   data->message = message;
@@ -2357,7 +2437,10 @@ main( int argc, char ** argv ) {
 
   if (locked == 1) {
 
-    printf("locked\n");
+    if (!((argc > 1) && (strlen(argv[1])>=9) && (strcmp(substring(argv[1],0,9),"--refresh") == 0))) {
+      printf("locked\n");
+    }
+    
     g_free(processpath);
     g_free(processpathdir);
     g_free(basedir);
