@@ -999,41 +999,66 @@ install_pack(int argc, char **argv, Data * data)
   gchar * tok = 0;
   gchar * ptr = pidx;
   if (tok = strtok_r(ptr, " \n", &rest)) {
-    pid_t ppid_raw = getppid();
     gchar * pid_max = exec("cat /proc/sys/kernel/pid_max",10);
-    gchar * ppid = g_malloc(strlen(pid_max));
-    sprintf(ppid,"%d",ppid_raw);
+    pid_t pid_raw = getpid();
+    gchar * pid = g_malloc(strlen(pid_max));
+    sprintf(pid,"%d",pid_raw);
     strcpy(str,"ps -p ");
-    strcat(str,ppid);
-    strcat(str," -o ppid=");
-    gchar * ppid2 = exec(str,10);
-    *(ppid2+strlen(ppid2)-1)='\0';
-    strcpy(str,"ps -p ");
-    strcat(str,ppid2);
+    strcat(str,pid);
     strcat(str," -o tty=");
     gchar * tty = exec(str,10);
-    if (strlen(tty)>=3) {
-      if (strcmp(substring(tty,0,3),"tty")!=0) {
+    if ((strlen(tty)>=3)&&(strcmp(substring(tty,0,3),"tty")==0)) {
+      pid_t ppid_raw = getppid();
+      gchar * ppid = g_malloc(strlen(pid_max));
+      sprintf(ppid,"%d",ppid_raw);
+      strcpy(str,"ps -p ");
+      strcat(str,ppid);
+      strcat(str," -o tty=");
+      gchar * tty2 = exec(str,10);
+      if ((strlen(tty2)>=3)&&(strcmp(substring(tty2,0,3),"tty")==0)) {
+	strcpy(str,"ps -p ");
+	strcat(str,ppid);
+	strcat(str," -o ppid=");
+	gchar * ppid2 = exec(str,10);
+	*(ppid2+strlen(ppid2)-1)='\0';
+	strcpy(str,"ps -p ");
+	strcat(str,ppid2);
+	strcat(str," -o tty=");
+	gchar * tty3 = exec(str,10);
+	if (!((strlen(tty3)>=3)&&(strcmp(substring(tty3,0,3),"tty")==0))) {
+	  strcpy(str,data->processpath);
+	  strcat(str,"-refresh");
+	  ret = system(str);
+	}
+	if (tty3!=0) {
+	  g_free(tty3);
+	}
+	if (ppid2!=0) {
+	  g_free(ppid2);
+	}
+      }
+      else {
 	strcpy(str,data->processpath);
 	strcat(str,"-refresh");
 	ret = system(str);
       }
-    }
-    else if (strlen(tty)>=1) {
-      if (strcmp(substring(tty,0,1),"?")==0){
-	strcpy(str,data->processpath);
-        strcat(str,"-refresh");
-	ret=system(str);
+      if (tty2!=0) {
+	g_free(tty2);
       }
+      if (ppid!=0) {
+	g_free(ppid);
+      }
+    }
+    else {
+      strcpy(str,data->processpath);
+      strcat(str,"-refresh");
+      ret = system(str);
     }
     if (tty!=0) {
       g_free(tty);
     }
-    if (ppid2!=0) {
-      g_free(ppid2);
-    }
-    if (ppid!=0) {
-      g_free(ppid);
+    if (pid!=0) {
+      g_free(pid);
     }
     if (pid_max!=0) {
       g_free(pid_max);
@@ -1570,41 +1595,66 @@ reinstall_pack(int argc, char **argv, Data * data)
   gchar * tok = 0;
   gchar * ptr = pidx;
   if (tok = strtok_r(ptr, " \n", &rest)) {
-    pid_t ppid_raw = getppid();
     gchar * pid_max = exec("cat /proc/sys/kernel/pid_max",10);
-    gchar * ppid = g_malloc(strlen(pid_max));
-    sprintf(ppid,"%d",ppid_raw);
+    pid_t pid_raw = getpid();
+    gchar * pid = g_malloc(strlen(pid_max));
+    sprintf(pid,"%d",pid_raw);
     strcpy(str,"ps -p ");
-    strcat(str,ppid);
-    strcat(str," -o ppid=");
-    gchar * ppid2 = exec(str,10);
-    *(ppid2+strlen(ppid2)-1)='\0';
-    strcpy(str,"ps -p ");
-    strcat(str,ppid2);
+    strcat(str,pid);
     strcat(str," -o tty=");
     gchar * tty = exec(str,10);
-    if (strlen(tty)>=3) {
-      if (strcmp(substring(tty,0,3),"tty")!=0) {
-        strcpy(str,data->processpath);
-        strcat(str,"-refresh");
-        ret = system(str);
+    if ((strlen(tty)>=3)&&(strcmp(substring(tty,0,3),"tty")==0)) {
+      pid_t ppid_raw = getppid();
+      gchar * ppid = g_malloc(strlen(pid_max));
+      sprintf(ppid,"%d",ppid_raw);
+      strcpy(str,"ps -p ");
+      strcat(str,ppid);
+      strcat(str," -o tty=");
+      gchar * tty2 = exec(str,10);
+      if ((strlen(tty2)>=3)&&(strcmp(substring(tty2,0,3),"tty")==0)) {
+	strcpy(str,"ps -p ");
+	strcat(str,ppid);
+	strcat(str," -o ppid=");
+	gchar * ppid2 = exec(str,10);
+	*(ppid2+strlen(ppid2)-1)='\0';
+	strcpy(str,"ps -p ");
+	strcat(str,ppid2);
+	strcat(str," -o tty=");
+	gchar * tty3 = exec(str,10);
+	if (!((strlen(tty3)>=3)&&(strcmp(substring(tty3,0,3),"tty")==0))) {
+	  strcpy(str,data->processpath);
+	  strcat(str,"-refresh");
+	  ret = system(str);
+	}
+	if (tty3!=0) {
+	  g_free(tty3);
+	}
+	if (ppid2!=0) {
+	  g_free(ppid2);
+	}
+      }
+      else {
+	strcpy(str,data->processpath);
+	strcat(str,"-refresh");
+	ret = system(str);
+      }
+      if (tty2!=0) {
+	g_free(tty2);
+      }
+      if (ppid!=0) {
+	g_free(ppid);
       }
     }
-    else if (strlen(tty)>=1) {
-      if (strcmp(substring(tty,0,1),"?")==0){
-        strcpy(str,data->processpath);
-        strcat(str,"-refresh");
-        ret=system(str);
-      }
+    else {
+      strcpy(str,data->processpath);
+      strcat(str,"-refresh");
+      ret = system(str);
     }
     if (tty!=0) {
       g_free(tty);
     }
-    if (ppid2!=0) {
-      g_free(ppid2);
-    }
-    if (ppid!=0) {
-      g_free(ppid);
+    if (pid!=0) {
+      g_free(pid);
     }
     if (pid_max!=0) {
       g_free(pid_max);
