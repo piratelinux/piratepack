@@ -6,7 +6,7 @@ curdir="$(pwd)"
 
 cd
 homedir="$(pwd)"
-localdir="$homedir/.piratepack/theme"
+localdir="$homedir/.piratepack/bitcoin"
 
 if [ -f "$localdir"/.installed ]
 then

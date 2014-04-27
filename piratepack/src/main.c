@@ -268,7 +268,7 @@ int refresh_theme(gchar * maindir, const gchar * homedir, gchar * option) {
   strcat(str,"/share/theme");
   ret = chdir(str);
 
-  strcpy (str,"(./install_theme.sh || echo \"$(date) ERROR: theme failed to install.\" >&2) >> /dev/null 2>> ");
+  strcpy (str,"(./install_theme.sh || echo \"$(date) PIRATEPACK ERROR: theme failed to install.\" >&2) >> /dev/null 2>> ");
   strcat(str,homedir);
   strcat(str,"/.piratepack/logs/theme_install.log");
   ret = system(str);
@@ -739,7 +739,7 @@ install_pack(int argc, char **argv, Data * data)
 
   ret = chdir(str);
 
-  strcpy (str,"(./install_firefox-mods.sh || echo \"ERROR: firefox-mods failed to install.\" >&2) ");
+  strcpy (str,"(./install_firefox-mods.sh || echo \"PIRATEPACK ERROR: firefox-mods failed to install.\" >&2) ");
   strcat (str,logpipe);
   ret = system(str);
 
@@ -777,7 +777,7 @@ install_pack(int argc, char **argv, Data * data)
 
   ret = chdir(str);
   
-  strcpy (str,"(./install_tor-browser.sh || echo \"ERROR: tor-browser failed to install.\" >&2) ");
+  strcpy (str,"(./install_tor-browser.sh || echo \"PIRATEPACK ERROR: tor-browser failed to install.\" >&2) ");
   strcat (str,logpipe);
   ret = system(str);
 
@@ -808,7 +808,7 @@ install_pack(int argc, char **argv, Data * data)
 
   ret = chdir(str);
 
-  strcpy (str,"(./install_i2p-browser.sh || echo \"ERROR: i2p-browser failed to install.\" >&2) ");
+  strcpy (str,"(./install_i2p-browser.sh || echo \"PIRATEPACK ERROR: i2p-browser failed to install.\" >&2) ");
   strcat (str,logpipe);
   ret = system(str);
 
@@ -842,7 +842,7 @@ install_pack(int argc, char **argv, Data * data)
 
   ret = chdir(str);
 
-  strcpy (str,"(./install_file-manager.sh || echo \"ERROR: file-manager failed to install.\" >&2) ");
+  strcpy (str,"(./install_file-manager.sh || echo \"PIRATEPACK ERROR: file-manager failed to install.\" >&2) ");
   strcat (str,logpipe);
   ret = system(str);
 
@@ -876,7 +876,7 @@ install_pack(int argc, char **argv, Data * data)
 
   ret = chdir(str);
 
-  strcpy (str,"(./install_ppcavpn.sh || echo \"ERROR: ppcavpn failed to install.\" >&2) ");
+  strcpy (str,"(./install_ppcavpn.sh || echo \"PIRATEPACK ERROR: ppcavpn failed to install.\" >&2) ");
   strcat (str,logpipe);
   ret = system(str);
 
@@ -910,7 +910,7 @@ install_pack(int argc, char **argv, Data * data)
 
   ret = chdir(str);
 
-  strcpy (str,"(./install_bitcoin.sh || echo \"ERROR: bitcoin failed to install.\" >&2) ");
+  strcpy (str,"(./install_bitcoin.sh || echo \"PIRATEPACK ERROR: bitcoin failed to install.\" >&2) ");
   strcat (str,logpipe);
   ret = system(str);
 
@@ -1013,10 +1013,17 @@ install_pack(int argc, char **argv, Data * data)
     strcat(str," -o tty=");
     gchar * tty = exec(str,10);
     if (strlen(tty)>=3) {
-      if ((substring(tty,0,3),"tty")!=0) {
+      if (strcmp(substring(tty,0,3),"tty")!=0) {
 	strcpy(str,data->processpath);
 	strcat(str,"-refresh");
 	ret = system(str);
+      }
+    }
+    else if (strlen(tty)>=1) {
+      if (strcmp(substring(tty,0,1),"?")==0){
+	strcpy(str,data->processpath);
+        strcat(str,"-refresh");
+	ret=system(str);
       }
     }
     if (tty!=0) {
@@ -1039,7 +1046,7 @@ install_pack(int argc, char **argv, Data * data)
   strcpy(str,"cat .piratepack/logs/install_last.log >> .piratepack/logs/piratepack_install.log 2>> .piratepack/logs/piratepack_install.log");
   ret = system(str);
 
-  gchar * error = exec("grep ERROR .piratepack/logs/install_last.log",100);
+  gchar * error = exec("grep \"PIRATEPACK ERROR\" .piratepack/logs/install_last.log",100);
   rest = 0;
   tok = 0;
   ptr = error;
@@ -1153,7 +1160,7 @@ reinstall_pack(int argc, char **argv, Data * data)
 
 	strcpy(str,"(./remove_");
         strcat(str,line);
-        strcat(str,".sh || echo \"ERROR: ");
+        strcat(str,".sh || echo \"PIRATEPACK ERROR: ");
 	strcat(str,line);
         strcat(str," failed to be removed.\" >&2) ");
         strcat(str,logpipe);
@@ -1192,7 +1199,7 @@ reinstall_pack(int argc, char **argv, Data * data)
   strcat(str,basedir);
   strcat(str,"' '");
   strcat(str,maindir);
-  strcat(str,"' || echo \"ERROR: failed to remove piratepack from PATH.\" >&2)");
+  strcat(str,"' || echo \"PIRATEPACK ERROR: failed to remove piratepack from PATH.\" >&2)");
   strcat(str,logpipe);
   ret = system(str);
 
@@ -1227,10 +1234,6 @@ reinstall_pack(int argc, char **argv, Data * data)
   strcpy(str,"cat .piratepack/logs/remove_last.log >> .piratepack/logs/piratepack_remove.log 2>> .piratepack/logs/piratepack_remove.log");
   ret = system(str);
 
-  //Append remove log to install log (since both are being done now in reinstall)
-  strcpy(str,"cat .piratepack/logs/remove_last.log > .piratepack/logs/install_last.log 2>> .piratepack/logs/piratepack_remove.log");
-  ret = system(str);
-
   //Start Install
 
   ret = chdir(homedir);
@@ -1251,7 +1254,7 @@ reinstall_pack(int argc, char **argv, Data * data)
   strcat (logpipe,homedir);
   strcat (logpipe,"/.piratepack/logs/install_last.log");
 
-  strcpy(str,"echo \"[$(date)]\" >> ");
+  strcpy(str,"echo \"[$(date)]\" > ");
   strcat(str,".piratepack/logs/install_last.log 2>> .piratepack/logs/piratepack_install.log");
   ret = system(str);
 
@@ -1307,7 +1310,7 @@ reinstall_pack(int argc, char **argv, Data * data)
 
   ret = chdir(str);
 
-  strcpy (str,"(./install_firefox-mods.sh || echo \"ERROR: firefox-mods failed to install.\" >&2) ");
+  strcpy (str,"(./install_firefox-mods.sh || echo \"PIRATEPACK ERROR: firefox-mods failed to install.\" >&2) ");
   strcat (str,logpipe);
   ret = system(str);
 
@@ -1345,7 +1348,7 @@ reinstall_pack(int argc, char **argv, Data * data)
 
   ret = chdir(str);
   
-  strcpy (str,"(./install_tor-browser.sh || echo \"ERROR: tor-browser failed to install.\" >&2) ");
+  strcpy (str,"(./install_tor-browser.sh || echo \"PIRATEPACK ERROR: tor-browser failed to install.\" >&2) ");
   strcat (str,logpipe);
   ret = system(str);
 
@@ -1376,7 +1379,7 @@ reinstall_pack(int argc, char **argv, Data * data)
 
   ret = chdir(str);
 
-  strcpy (str,"(./install_i2p-browser.sh || echo \"ERROR: i2p-browser failed to install.\" >&2) ");
+  strcpy (str,"(./install_i2p-browser.sh || echo \"PIRATEPACK ERROR: i2p-browser failed to install.\" >&2) ");
   strcat (str,logpipe);
   ret = system(str);
 
@@ -1410,7 +1413,7 @@ reinstall_pack(int argc, char **argv, Data * data)
 
   ret = chdir(str);
 
-  strcpy (str,"(./install_file-manager.sh || echo \"ERROR: file-manager failed to install.\" >&2) ");
+  strcpy (str,"(./install_file-manager.sh || echo \"PIRATEPACK ERROR: file-manager failed to install.\" >&2) ");
   strcat (str,logpipe);
   ret = system(str);
 
@@ -1444,7 +1447,7 @@ reinstall_pack(int argc, char **argv, Data * data)
 
   ret = chdir(str);
 
-  strcpy (str,"(./install_ppcavpn.sh || echo \"ERROR: ppcavpn failed to install.\" >&2) ");
+  strcpy (str,"(./install_ppcavpn.sh || echo \"PIRATEPACK ERROR: ppcavpn failed to install.\" >&2) ");
   strcat (str,logpipe);
   ret = system(str);
 
@@ -1478,7 +1481,7 @@ reinstall_pack(int argc, char **argv, Data * data)
 
   ret = chdir(str);
 
-  strcpy (str,"(./install_bitcoin.sh || echo \"ERROR: bitcoin failed to install.\" >&2) ");
+  strcpy (str,"(./install_bitcoin.sh || echo \"PIRATEPACK ERROR: bitcoin failed to install.\" >&2) ");
   strcat (str,logpipe);
   ret = system(str);
 
@@ -1581,10 +1584,17 @@ reinstall_pack(int argc, char **argv, Data * data)
     strcat(str," -o tty=");
     gchar * tty = exec(str,10);
     if (strlen(tty)>=3) {
-      if ((substring(tty,0,3),"tty")!=0) {
+      if (strcmp(substring(tty,0,3),"tty")!=0) {
         strcpy(str,data->processpath);
         strcat(str,"-refresh");
         ret = system(str);
+      }
+    }
+    else if (strlen(tty)>=1) {
+      if (strcmp(substring(tty,0,1),"?")==0){
+        strcpy(str,data->processpath);
+        strcat(str,"-refresh");
+        ret=system(str);
       }
     }
     if (tty!=0) {
@@ -1607,7 +1617,7 @@ reinstall_pack(int argc, char **argv, Data * data)
   strcpy(str,"cat .piratepack/logs/install_last.log >> .piratepack/logs/piratepack_install.log 2>> .piratepack/logs/piratepack_install.log");
   ret = system(str);
 
-  gchar * error = exec("grep ERROR .piratepack/logs/install_last.log",100);
+  gchar * error = exec("grep \"PIRATEPACK ERROR\" .piratepack/logs/install_last.log",100);
   rest = 0;
   tok = 0;
   ptr = error;
@@ -1725,7 +1735,7 @@ int remove_pack(int argc, char **argv, Data * data) {
 
 	strcpy(str,"(./remove_");
 	strcat(str,line);
-	strcat(str,".sh || echo \"ERROR: ");
+	strcat(str,".sh || echo \"PIRATEPACK ERROR: ");
 	strcat(str,line);
 	strcat(str," failed to be removed.\" >&2) ");
 	strcat(str,logpipe);
@@ -1764,7 +1774,7 @@ int remove_pack(int argc, char **argv, Data * data) {
   strcat(str,basedir);
   strcat(str,"' '");
   strcat(str,maindir);
-  strcat(str,"' || echo \"ERROR: failed to remove piratepack from PATH.\" >&2)");
+  strcat(str,"' || echo \"PIRATEPACK ERROR: failed to remove piratepack from PATH.\" >&2)");
   strcat(str,logpipe);
   ret = system(str);
 
@@ -1799,7 +1809,7 @@ int remove_pack(int argc, char **argv, Data * data) {
   strcpy(str,"cat .piratepack/logs/remove_last.log >> .piratepack/logs/piratepack_remove.log 2>> .piratepack/logs/piratepack_remove.log");
   ret = system(str);
 
-  gchar * error = exec("grep ERROR .piratepack/logs/remove_last.log",100);
+  gchar * error = exec("grep \"PIRATEPACK ERROR\" .piratepack/logs/remove_last.log",100);
   gchar * rest = 0;
   gchar * tok = 0;
   gchar * ptr = error;
