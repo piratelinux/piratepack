@@ -46,6 +46,7 @@ static void cb_execute_install(GtkButton *button, Data *data);
 static void cb_execute_reinstall(GtkButton *button, Data *data);
 static void cb_execute_remove(GtkButton *button, Data *data);
 static void cb_execute_update(GtkButton *button, Data *data);
+static void cb_execute_update_auto(Data * data);
 
 gchar* substring(const gchar* str, size_t begin, size_t len)
 {
@@ -367,11 +368,17 @@ cb_out_watch( GIOChannel   *channel,
     else if (strcmp(data->action,"update")==0) {
       if (g_strcmp0("Updated\n",string) == 0) {
 	gtk_widget_set_sensitive((GtkWidget *)data->button_disable,TRUE);
-	/* Remove timeout callback */
 	g_source_remove( data->timeout_id );
 	gtk_progress_bar_set_fraction((GtkProgressBar *)data->progress, 0.0);
 	g_free(data->action);
 	gtk_label_set_label(data->message,"Updated");
+      }
+      else if (g_strcmp0("INSTALL ERROR\n",string)==0) {
+	gtk_widget_set_sensitive((GtkWidget *)data->button_disable,TRUE);
+        g_source_remove( data->timeout_id );
+        gtk_progress_bar_set_fraction((GtkProgressBar *)data->progress, 0.0);
+        g_free(data->action);
+        gtk_label_set_label(data->message,"Some components failed to install.\nSee ~/.piratepack/logs/install_last.log for details.");
       }
     }
     else if (strcmp(data->action,"remove")==0) {
@@ -592,6 +599,13 @@ static void cb_execute_update( GtkButton *button,
 
   data->action = strdup("update");
   cb_execute(button,data);
+
+}
+
+static void cb_execute_update_auto(Data *data)
+{
+
+  cb_execute(data->button_disable,data);
 
 }
 
@@ -2243,6 +2257,13 @@ int gui_status(int argc, char ** argv, Data * data) {
 
   hbuttonbox = (GtkHButtonBox *)gtk_hbutton_box_new();
 
+  guchar update = 0;
+  if ((data->action)!=0) {
+    if (strcmp(data->action,"update")==0) {
+      update = 1;
+    }
+  }
+
   strcpy (str,homedir);
   strcat (str,"/.piratepack/.error");
   if (g_file_test(str,G_FILE_TEST_IS_REGULAR)) {
@@ -2255,6 +2276,9 @@ int gui_status(int argc, char ** argv, Data * data) {
       g_signal_connect( G_OBJECT( button_disable ), "clicked", G_CALLBACK( cb_execute_remove ), data );
       gtk_container_add((GtkContainer *)hbuttonbox,(GtkWidget *)button_disable);
       data->button_disable = button_disable;
+      if (update == 1) {
+	gtk_widget_set_sensitive((GtkWidget *)data->button_disable,FALSE);
+      }
     }
     else {
       message = (GtkLabel *)gtk_label_new("Some components failed to be removed.\nSee ~/.piratepack/logs/remove_last.log for details.");
@@ -2275,6 +2299,9 @@ int gui_status(int argc, char ** argv, Data * data) {
       g_signal_connect( G_OBJECT( button_disable ), "clicked", G_CALLBACK( cb_execute_remove ), data );
       gtk_container_add((GtkContainer *)hbuttonbox,(GtkWidget *)button_disable);
       data->button_disable = button_disable;
+      if (update == 1) {
+        gtk_widget_set_sensitive((GtkWidget *)data->button_disable,FALSE);
+      }
     }
     else {
       button_enable = (GtkButton *)gtk_button_new_with_label( "Enable" );
@@ -2300,6 +2327,10 @@ int gui_status(int argc, char ** argv, Data * data) {
   g_free(str);
 
   gtk_widget_show_all((GtkWidget *)window);
+
+  if (update == 1) {
+    guint ret = g_idle_add((GSourceFunc)cb_execute_update_auto,data);
+  }
 
   gtk_main();
 }
@@ -2731,8 +2762,9 @@ main( int argc, char ** argv ) {
 	  ret = remove_pack(argc,argv,data);
 	}
 	else {
-	  ret = update_pack(argc,argv,data);
-	  main(argc,argv);
+	  //new
+	  data->action = strdup("update");
+	  ret = gui_status(argc,argv,data);
 	}
       }
     }
