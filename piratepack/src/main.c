@@ -57,7 +57,7 @@ gchar* substring(const gchar* str, size_t begin, size_t len)
 
 gchar* exec(gchar* cmd, gint size) {
   FILE* pipe = popen(cmd, "r");
-  if (!pipe) return "ERROR";
+  if (!pipe) return strdup("ERROR");
   gchar * result = g_malloc(size);
   strcpy(result,"");
   gchar * retch = fgets(result,size,pipe);
@@ -153,7 +153,7 @@ release_locks(gchar * str, gchar * pid_str, gchar * homedir, gchar * prefix) {
 
   if (f == 0) {
 
-    fprintf(stderr,"Error opening file");
+    fprintf(stdout,"Error opening file");
 
   }
 
@@ -288,7 +288,7 @@ cb_child_watch( GPid  pid,
 }
  
 static gboolean
-cb_out_watch( GIOChannel   *channel,
+cb_err_watch( GIOChannel   *channel,
               GIOCondition  cond,
               Data         *data )
 {
@@ -303,7 +303,7 @@ cb_out_watch( GIOChannel   *channel,
  
     g_io_channel_read_line( channel, &string, &size, 0, 0 );
 
-    //printf("out_watch:%s\n",string);
+    //printf("err_watch:%s\n",string);
 
     g_free( string );
  
@@ -311,7 +311,7 @@ cb_out_watch( GIOChannel   *channel,
 }
  
 static gboolean
-cb_err_watch( GIOChannel   *channel,
+cb_out_watch( GIOChannel   *channel,
               GIOCondition  cond,
               Data         *data )
 {
@@ -994,13 +994,55 @@ install_pack(int argc, char **argv, Data * data)
     ret = system(str);
   }
 
+  gchar * pidx = exec("pidof X",100);
+  gchar * rest = 0;
+  gchar * tok = 0;
+  gchar * ptr = pidx;
+  if (tok = strtok_r(ptr, " \n", &rest)) {
+    pid_t ppid_raw = getppid();
+    gchar * pid_max = exec("cat /proc/sys/kernel/pid_max",10);
+    gchar * ppid = g_malloc(strlen(pid_max));
+    sprintf(ppid,"%d",ppid_raw);
+    strcpy(str,"ps -p ");
+    strcat(str,ppid);
+    strcat(str," -o ppid=");
+    gchar * ppid2 = exec(str,10);
+    *(ppid2+strlen(ppid2)-1)='\0';
+    strcpy(str,"ps -p ");
+    strcat(str,ppid2);
+    strcat(str," -o tty=");
+    gchar * tty = exec(str,10);
+    if (strlen(tty)>=3) {
+      if ((substring(tty,0,3),"tty")!=0) {
+	strcpy(str,data->processpath);
+	strcat(str,"-refresh");
+	ret = system(str);
+      }
+    }
+    if (tty!=0) {
+      g_free(tty);
+    }
+    if (ppid2!=0) {
+      g_free(ppid2);
+    }
+    if (ppid!=0) {
+      g_free(ppid);
+    }
+    if (pid_max!=0) {
+      g_free(pid_max);
+    }
+  }
+  if (pidx != 0) {
+    g_free(pidx);
+  }
+
   strcpy(str,"cat .piratepack/logs/install_last.log >> .piratepack/logs/piratepack_install.log 2>> .piratepack/logs/piratepack_install.log");
   ret = system(str);
 
   gchar * error = exec("grep ERROR .piratepack/logs/install_last.log",100);
-  gchar * rest = 0;
-  gchar * tok = 0;
-  gchar * ptr = error;
+  rest = 0;
+  tok = 0;
+  ptr = error;
 
   if (!(tok = strtok_r(ptr, " \n", &rest))) {
     strcpy(str,"Enabled");
@@ -1011,8 +1053,8 @@ install_pack(int argc, char **argv, Data * data)
     strcpy(str,"INSTALL ERROR");
   }
 
-  fprintf( stderr, "%s\n", str );
-  fflush(stderr);
+  fprintf( stdout, "%s\n", str );
+  fflush(stdout);
 
   if (error != 0) {
     g_free(error);
@@ -1520,13 +1562,55 @@ reinstall_pack(int argc, char **argv, Data * data)
     ret = system(str);
   }
 
+  gchar * pidx = exec("pidof X",100);
+  gchar * rest = 0;
+  gchar * tok = 0;
+  gchar * ptr = pidx;
+  if (tok = strtok_r(ptr, " \n", &rest)) {
+    pid_t ppid_raw = getppid();
+    gchar * pid_max = exec("cat /proc/sys/kernel/pid_max",10);
+    gchar * ppid = g_malloc(strlen(pid_max));
+    sprintf(ppid,"%d",ppid_raw);
+    strcpy(str,"ps -p ");
+    strcat(str,ppid);
+    strcat(str," -o ppid=");
+    gchar * ppid2 = exec(str,10);
+    *(ppid2+strlen(ppid2)-1)='\0';
+    strcpy(str,"ps -p ");
+    strcat(str,ppid2);
+    strcat(str," -o tty=");
+    gchar * tty = exec(str,10);
+    if (strlen(tty)>=3) {
+      if ((substring(tty,0,3),"tty")!=0) {
+        strcpy(str,data->processpath);
+        strcat(str,"-refresh");
+        ret = system(str);
+      }
+    }
+    if (tty!=0) {
+      g_free(tty);
+    }
+    if (ppid2!=0) {
+      g_free(ppid2);
+    }
+    if (ppid!=0) {
+      g_free(ppid);
+    }
+    if (pid_max!=0) {
+      g_free(pid_max);
+    }
+  }
+  if (pidx != 0) {
+    g_free(pidx);
+  }
+
   strcpy(str,"cat .piratepack/logs/install_last.log >> .piratepack/logs/piratepack_install.log 2>> .piratepack/logs/piratepack_install.log");
   ret = system(str);
 
   gchar * error = exec("grep ERROR .piratepack/logs/install_last.log",100);
-  gchar * rest = 0;
-  gchar * tok = 0;
-  gchar * ptr = error;
+  rest = 0;
+  tok = 0;
+  ptr = error;
 
   if (!(tok = strtok_r(ptr, " \n", &rest))) {
     strcpy(str,"Updated");
@@ -1537,8 +1621,8 @@ reinstall_pack(int argc, char **argv, Data * data)
     strcpy(str,"INSTALL ERROR");
   }
 
-  fprintf( stderr, "%s\n", str );
-  fflush(stderr);
+  fprintf( stdout, "%s\n", str );
+  fflush(stdout);
 
   if (error != 0) {
     g_free(error);
@@ -1729,8 +1813,8 @@ int remove_pack(int argc, char **argv, Data * data) {
     strcpy(str,"REMOVE ERROR");
   }
 
-  fprintf( stderr, "%s\n", str );
-  fflush(stderr);
+  fprintf( stdout, "%s\n", str );
+  fflush(stdout);
 
   if (error != 0) {
     g_free(error);
@@ -2026,19 +2110,19 @@ int install_pirate_file(int argc, char **argv, Data * data) {
       
       //end setup                                                                                                                                                                                                                        
       strcpy(str,"Installed");
-      fprintf( stderr, "%s\n", str );
+      fprintf( stdout, "%s\n", str );
     }
     else if (strcmp(resultsub,"err:")==0) {
       strcpy(str,"File not authentic");
-      fprintf( stderr, "%s\n", str );
+      fprintf( stdout, "%s\n", str );
     }
     g_free(resultsub);
   }
   else {
     strcpy(str,"Error");
-    fprintf( stderr, "%s\n", str );
+    fprintf( stdout, "%s\n", str );
   }
-  fflush(stderr);
+  fflush(stdout);
 
   strcpy(str,homedir);
   strcat(str,"/.piratepack");
@@ -2313,7 +2397,7 @@ main( int argc, char ** argv ) {
       
       if (f == 0) {
 
-	fprintf(stderr,"Error opening file\n");
+	fprintf(stdout,"Error opening file\n");
 
       }
 
@@ -2438,7 +2522,7 @@ main( int argc, char ** argv ) {
   if (locked == 1) {
 
     if (!((argc > 1) && (strlen(argv[1])>=9) && (strcmp(substring(argv[1],0,9),"--refresh") == 0))) {
-      printf("locked\n");
+      printf("Locked.\n");
     }
     
     g_free(processpath);
