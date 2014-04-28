@@ -120,8 +120,18 @@ then
     cd src/setup
 
     echo '#!/bin/bash' > piratepack-refresh
-    echo "$basedir_fin"'/bin/piratepack --refresh-tor &' >> piratepack-refresh
-    echo "$basedir_fin"'/bin/piratepack --refresh-theme &' >> piratepack-refresh
+    echo 'pidxinit=$(pidof xinit)' >> piratepack-refresh
+    echo 'numxinit=$(echo "$pidxinit" | wc -w)' >> piratepack-refresh
+    echo 'if [[ "$numxinit" == "1" ]]' >> piratepack-refresh
+    echo 'then' >> piratepack-refresh
+    echo -e '\txuser=$(ps -p "$pidxinit" -o user=)' >> piratepack-refresh
+    echo -e '\tif [[ "$xuser" == "$USER" ]]' >> piratepack-refresh
+    echo -e '\tthen' >> piratepack-refresh
+    echo -e '\t\t"'"$basedir_fin"'"/bin/piratepack --refresh-tor &' >> piratepack-refresh
+    echo -e '\tfi' >> piratepack-refresh
+    echo -e 'fi' >> piratepack-refresh
+    echo -e '"'"$basedir_fin"'"/bin/piratepack --refresh-theme &' >> piratepack-refresh
+
     set +e
     chmod a+rx piratepack-refresh
     set -e
@@ -200,8 +210,11 @@ then
 	cd "$curdir"
 	cp -f "$curdir"/piratepack/src/setup/piratepack.desktop.2 "$2"/usr/share/applications/piratepack.desktop
         cp -f "$curdir"/piratepack/src/setup/piratepack.desktop "$2"/etc/xdg/autostart/
-	echo export PATH=\"$basedir_fin/bin\":\"\$PATH\" > profile.sh
-        echo "\"$basedir_fin/bin/piratepack\"" --refresh >> profile.sh
+	echo 'export PATH="'"$basedir_fin"'"/bin:"$PATH"' > profile.sh
+	echo 'if [[ "$USER" != "root" ]]' >> profile.sh
+	echo "then" >> profile.sh
+        echo -e '\t"'"$basedir_fin"'"/bin/piratepack --refresh' >> profile.sh
+	echo "fi" >> profile.sh
     fi
 
 fi
