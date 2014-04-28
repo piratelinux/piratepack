@@ -327,7 +327,7 @@ cb_out_watch( GIOChannel   *channel,
     g_io_channel_read_line( channel, &string, &size, 0, 0 );
 
     if (strcmp(data->action,"install")==0) {
-      if (g_strcmp0("Enabled\n",string) == 0) {
+      if (g_strcmp0("Piratepack enabled\n",string) == 0) {
 	gtk_container_remove((GtkContainer *)data->hbuttonbox,(GtkWidget *)data->button_enable);
 	data->button_disable = (GtkButton *)gtk_button_new_with_label("Disable");
 	gtk_widget_set_size_request((GtkWidget *)data->button_disable,120,-1);
@@ -340,7 +340,7 @@ cb_out_watch( GIOChannel   *channel,
 	g_free(data->action);
 	gtk_label_set_label(data->message,"Enabled");
       }
-      else if (g_strcmp0("INSTALL ERROR\n",string)==0) {
+      else if (g_strcmp0("Piratepack install error\n",string)==0) {
 	gtk_container_remove((GtkContainer *)data->hbuttonbox,(GtkWidget *)data->button_enable);
         data->button_disable = (GtkButton *)gtk_button_new_with_label("Disable");
         gtk_widget_set_size_request((GtkWidget *)data->button_disable,120,-1);
@@ -352,28 +352,16 @@ cb_out_watch( GIOChannel   *channel,
         g_free(data->action);
 	gtk_label_set_label(data->message,"Some components failed to install.\nSee ~/.piratepack/logs/install_last.log for details.");
       }
-      else if (g_strcmp0("REMOVE ERROR\n",string)==0) {
-	gtk_container_remove((GtkContainer *)data->hbuttonbox,(GtkWidget *)data->button_enable);
-        data->button_disable = (GtkButton *)gtk_button_new_with_label("Disable");
-	gtk_widget_set_size_request((GtkWidget *)data->button_disable,120,-1);
-        g_signal_connect(G_OBJECT(data->button_disable), "clicked", G_CALLBACK(cb_execute_remove), data);
-        gtk_container_add((GtkContainer *)data->hbuttonbox,(GtkWidget *)data->button_disable);
-        gtk_widget_show((GtkWidget *)data->button_disable);
-        g_source_remove( data->timeout_id );
-        gtk_progress_bar_set_fraction((GtkProgressBar *)data->progress, 0.0);
-        g_free(data->action);
-        gtk_label_set_label(data->message,"Some components failed to install.\nSee ~/.piratepack/logs/install_last.log for details.");
-      }
     }
     else if (strcmp(data->action,"update")==0) {
-      if (g_strcmp0("Updated\n",string) == 0) {
+      if (g_strcmp0("Piratepack updated\n",string) == 0) {
 	gtk_widget_set_sensitive((GtkWidget *)data->button_disable,TRUE);
 	g_source_remove( data->timeout_id );
 	gtk_progress_bar_set_fraction((GtkProgressBar *)data->progress, 0.0);
 	g_free(data->action);
 	gtk_label_set_label(data->message,"Updated");
       }
-      else if (g_strcmp0("INSTALL ERROR\n",string)==0) {
+      else if (g_strcmp0("Piratepack install error\n",string)==0) {
 	gtk_widget_set_sensitive((GtkWidget *)data->button_disable,TRUE);
         g_source_remove( data->timeout_id );
         gtk_progress_bar_set_fraction((GtkProgressBar *)data->progress, 0.0);
@@ -382,7 +370,7 @@ cb_out_watch( GIOChannel   *channel,
       }
     }
     else if (strcmp(data->action,"remove")==0) {
-      if (g_strcmp0("Disabled\n",string) == 0) {
+      if (g_strcmp0("Piratepack disabled\n",string) == 0) {
         gtk_container_remove((GtkContainer *)data->hbuttonbox,(GtkWidget *)data->button_disable);
         data->button_enable = (GtkButton *)gtk_button_new_with_label("Enable");
         gtk_widget_set_size_request((GtkWidget *)data->button_enable,120,-1);
@@ -394,6 +382,19 @@ cb_out_watch( GIOChannel   *channel,
 	gtk_progress_bar_set_fraction((GtkProgressBar *)data->progress, 0.0);
 	g_free(data->action);
 	gtk_label_set_label(data->message,"Disabled");
+      }
+      else if (g_strcmp0("Piratepack remove error\n",string) == 0) {
+        gtk_container_remove((GtkContainer *)data->hbuttonbox,(GtkWidget *)data->button_disable);
+        data->button_enable = (GtkButton *)gtk_button_new_with_label("Enable");
+        gtk_widget_set_size_request((GtkWidget *)data->button_enable,120,-1);
+        g_signal_connect( G_OBJECT( data->button_enable ), "clicked", G_CALLBACK(cb_execute_install), data);
+        gtk_container_add((GtkContainer *)data->hbuttonbox,(GtkWidget *)data->button_enable);
+        gtk_widget_show((GtkWidget *)data->button_enable);
+        /* Remove timeout callback */
+        g_source_remove( data->timeout_id );
+        gtk_progress_bar_set_fraction((GtkProgressBar *)data->progress, 0.0);
+        g_free(data->action);
+        gtk_label_set_label(data->message,"Some components failed to be removed.\nSee ~/.piratepack/logs/remove_last.log for details.");
       }
     }
     else if (strcmp(data->action,"install_pirate_file")==0) {
@@ -1091,12 +1092,12 @@ install_pack(int argc, char **argv, Data * data)
   ptr = error;
 
   if (!(tok = strtok_r(ptr, " \n", &rest))) {
-    strcpy(str,"Enabled");
+    strcpy(str,"Piratepack enabled");
   }
   else {
     strcpy (str,"touch .piratepack/.error >> /dev/null >> .piratepack/logs/piratepack_install.log ");
     ret = system(str);
-    strcpy(str,"INSTALL ERROR");
+    strcpy(str,"Piratepack install error");
   }
 
   fprintf( stdout, "%s\n", str );
@@ -1687,12 +1688,12 @@ reinstall_pack(int argc, char **argv, Data * data)
   ptr = error;
 
   if (!(tok = strtok_r(ptr, " \n", &rest))) {
-    strcpy(str,"Updated");
+    strcpy(str,"Piratepack updated");
   }
   else {
     strcpy (str,"touch .piratepack/.error >> /dev/null >> .piratepack/logs/piratepack_install.log ");
     ret = system(str);
-    strcpy(str,"INSTALL ERROR");
+    strcpy(str,"Piratepack install error");
   }
 
   fprintf( stdout, "%s\n", str );
@@ -1879,12 +1880,12 @@ int remove_pack(int argc, char **argv, Data * data) {
   gchar * ptr = error;
 
   if (!(tok = strtok_r(ptr, " \n", &rest))) {
-    strcpy(str,"Disabled");
+    strcpy(str,"Piratepack disabled");
   }
   else {
     strcpy (str,"touch .piratepack/.error >> /dev/null >> .piratepack/logs/piratepack_remove.log ");
     ret = system(str);
-    strcpy(str,"REMOVE ERROR");
+    strcpy(str,"Piratepack remove error");
   }
 
   fprintf( stdout, "%s\n", str );
