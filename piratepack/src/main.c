@@ -2271,7 +2271,12 @@ int gui_status(int argc, char ** argv, Data * data) {
     strcpy (str,homedir);
     strcat (str,"/.piratepack/.installed");
     if (g_file_test(str,G_FILE_TEST_IS_REGULAR)) {
-      message = (GtkLabel *)gtk_label_new("Some components failed to install.\nSee ~/.piratepack/logs/install_last.log for details.");
+      if (update == 1) {
+	message = (GtkLabel *)gtk_label_new("Updating");
+      }
+      else {
+	message = (GtkLabel *)gtk_label_new("Some components failed to install.\nSee ~/.piratepack/logs/install_last.log for details.");
+      }
       button_disable = (GtkButton *)gtk_button_new_with_label( "Disable" );
       gtk_widget_set_size_request((GtkWidget *)button_disable,120,-1);
       g_signal_connect( G_OBJECT( button_disable ), "clicked", G_CALLBACK( cb_execute_remove ), data );
@@ -2291,7 +2296,12 @@ int gui_status(int argc, char ** argv, Data * data) {
     }
   }
   else {
-    message = (GtkLabel *)gtk_label_new("The Pirate Pack enhances your digital freedom\nLearn more at piratelinux.org");
+    if (update == 1) {
+      message = (GtkLabel *)gtk_label_new("Updating");
+    }
+    else {
+      message = (GtkLabel *)gtk_label_new("The Pirate Pack enhances your digital freedom\nLearn more at piratelinux.org");
+    }
     strcpy (str,homedir);
     strcat (str,"/.piratepack/.installed");
     if (g_file_test(str,G_FILE_TEST_IS_REGULAR)) {
