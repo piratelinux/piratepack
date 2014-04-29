@@ -11,9 +11,11 @@ then
     while read line    
     do    
 	if [ -e "$line" ]
-	then 
-	    chmod -R u+rw "$line"
+	then
+	    set +e
+	    chmod -Rf u+rw "$line"
 	    rm -rf "$line"
+	    set -e
 	fi
     done <"$localdir"/.installed 
 fi
