@@ -1041,8 +1041,9 @@ install_pack(int argc, char **argv, Data * data)
 	strcat(str," -o tty=");
 	gchar * tty3 = exec(str,10);
 	if (!((strlen(tty3)>=3)&&(strcmp(substring(tty3,0,3),"tty")==0))) {
-	  strcpy(str,data->processpath);
-	  strcat(str,"-refresh");
+	  strcpy(str,"\"");
+	  strcat(str,data->basedir);
+	  strcat(str,"\"/bin/piratepack --refresh-theme &");
 	  ret = system(str);
 	}
 	if (tty3!=0) {
@@ -1053,8 +1054,9 @@ install_pack(int argc, char **argv, Data * data)
 	}
       }
       else {
-	strcpy(str,data->processpath);
-	strcat(str,"-refresh");
+	strcpy(str,"\"");
+	strcat(str,data->basedir);
+	strcat(str,"\"/bin/piratepack --refresh-theme &");
 	ret = system(str);
       }
       if (tty2!=0) {
@@ -1065,8 +1067,9 @@ install_pack(int argc, char **argv, Data * data)
       }
     }
     else {
-      strcpy(str,data->processpath);
-      strcat(str,"-refresh");
+      strcpy(str,"\"");
+      strcat(str,data->basedir);
+      strcat(str,"\"/bin/piratepack --refresh-theme &");
       ret = system(str);
     }
     if (tty!=0) {
@@ -1637,8 +1640,9 @@ reinstall_pack(int argc, char **argv, Data * data)
 	strcat(str," -o tty=");
 	gchar * tty3 = exec(str,10);
 	if (!((strlen(tty3)>=3)&&(strcmp(substring(tty3,0,3),"tty")==0))) {
-	  strcpy(str,data->processpath);
-	  strcat(str,"-refresh");
+	  strcpy(str,"\"");
+          strcat(str,data->basedir);
+          strcat(str,"\"/bin/piratepack --refresh-theme &");
 	  ret = system(str);
 	}
 	if (tty3!=0) {
@@ -1649,8 +1653,9 @@ reinstall_pack(int argc, char **argv, Data * data)
 	}
       }
       else {
-	strcpy(str,data->processpath);
-	strcat(str,"-refresh");
+	strcpy(str,"\"");
+	strcat(str,data->basedir);
+	strcat(str,"\"/bin/piratepack --refresh-theme &");
 	ret = system(str);
       }
       if (tty2!=0) {
@@ -1661,8 +1666,9 @@ reinstall_pack(int argc, char **argv, Data * data)
       }
     }
     else {
-      strcpy(str,data->processpath);
-      strcat(str,"-refresh");
+      strcpy(str,"\"");
+      strcat(str,data->basedir);
+      strcat(str,"\"/bin/piratepack --refresh-theme &");
       ret = system(str);
     }
     if (tty!=0) {

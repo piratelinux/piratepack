@@ -120,16 +120,7 @@ then
     cd src/setup
 
     echo '#!/bin/bash' > piratepack-refresh
-    echo 'pidxinit=$(pidof xinit)' >> piratepack-refresh
-    echo 'numxinit=$(echo "$pidxinit" | wc -w)' >> piratepack-refresh
-    echo 'if [[ "$numxinit" == "1" ]]' >> piratepack-refresh
-    echo 'then' >> piratepack-refresh
-    echo -e '\txuser=$(ps -p "$pidxinit" -o user=)' >> piratepack-refresh
-    echo -e '\tif [[ "$xuser" == "$USER" ]]' >> piratepack-refresh
-    echo -e '\tthen' >> piratepack-refresh
-    echo -e '\t\t"'"$basedir_fin"'"/bin/piratepack --refresh-tor &' >> piratepack-refresh
-    echo -e '\tfi' >> piratepack-refresh
-    echo -e 'fi' >> piratepack-refresh
+    echo -e '"'"$basedir_fin"'"/bin/piratepack --refresh-tor &' >> piratepack-refresh
     echo -e '"'"$basedir_fin"'"/bin/piratepack --refresh-theme &' >> piratepack-refresh
 
     set +e
