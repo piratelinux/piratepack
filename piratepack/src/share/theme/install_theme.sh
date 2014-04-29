@@ -18,7 +18,7 @@ then
 
     if [[ "$curimage" == "$curdir/background.jpg" ]]
     then
-	echo "$curdir/background.jpg" >> "$localdir"/.installed
+	echo "$basedir/background.jpg" >> "$localdir"/.installed
     fi
 fi
 
