@@ -16,7 +16,7 @@ then
     xfconf-query -n -c xfce4-desktop -p "/backdrop/screen0/monitor0/image-path" -t "string" -s "$basedir/share/theme/background.jpg"
     curimage="$(xfconf-query -c xfce4-desktop -p /backdrop/screen0/monitor0/image-path -t string)"
 
-    if [[ "$curimage" == "$curdir/background.jpg" ]]
+    if [[ "$curimage" == "$basedir/background.jpg" ]]
     then
 	echo "$basedir/background.jpg" >> "$localdir"/.installed
     fi

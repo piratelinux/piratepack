@@ -2630,7 +2630,7 @@ main( int argc, char ** argv ) {
   if (locked == 1) {
 
     if (!((argc > 1) && (strlen(argv[1])>=9) && (strcmp(substring(argv[1],0,9),"--refresh") == 0))) {
-      printf("Locked.\n");
+      printf("Locked\n");
     }
     
     g_free(processpath);
